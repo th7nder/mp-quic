@@ -9,3 +9,6 @@
 2020/10/09 03:29:13 Path 1: sent 40083 retrans 0 lost 0; rcv 76823
 2020/10/09 03:29:13 40.7865919s
 ```
+
+# Questions
+1. MPQUIC 2017 vs QUIC 2019?
