@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"path"
@@ -49,6 +50,12 @@ func init() {
 			0x61, 0x00, 0x00, 0x00, 0xf0, 0x00, 0x01, 0xe2, 0xb8, 0x75, 0x22, 0x00,
 			0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
 		})
+	})
+
+	http.HandleFunc("/demo/bigFile", func(w http.ResponseWriter, r *http.Request) {
+		data := make([]byte, 100*1000*1000)
+		rand.Read(data)
+		w.Write(data)
 	})
 
 	http.HandleFunc("/demo/tiles", func(w http.ResponseWriter, r *http.Request) {
