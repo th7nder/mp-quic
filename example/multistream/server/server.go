@@ -12,9 +12,9 @@ import (
 )
 
 // Server listens on addr, waits on n streams and sends 100MB random file over each stream
-func Server(addr string, streams int) error {
+func Server(addr string, streams int, size int) error {
 	fmt.Println("Generating random data")
-	data := make([]byte, 100*1024*1024)
+	data := make([]byte, size*1024*1024)
 	_, err := rand.Read(data)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate 100MB of data")
@@ -70,6 +70,10 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 	n, err := s.Write(data)
 	if err != nil {
 		fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
+	}
+
+	if err := s.Close(); err != nil {
+		fmt.Printf("[SID: %d] Failed to close a stream", err)
 	}
 
 	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), n)
