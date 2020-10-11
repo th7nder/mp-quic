@@ -5,6 +5,7 @@ import (
 
 	"github.com/lucas-clemente/quic-go/example/multistream/client"
 	"github.com/lucas-clemente/quic-go/example/multistream/server"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 )
 
 // We start a server echoing data on the first stream the client opens,
@@ -15,6 +16,7 @@ var (
 	streams   = flag.Int("streams", 1, "number of streams to be opened")
 	size      = flag.Int("size", 30, "size of data in MB")
 	multipath = flag.Bool("multipath", false, "enable/disable multipath")
+	verbose   = flag.Bool("v", false, "verbose logging")
 )
 
 func main() {
@@ -22,6 +24,12 @@ func main() {
 	if *addr == "" {
 		flag.Usage()
 		return
+	}
+
+	if *verbose {
+		utils.SetLogLevel(utils.LogLevelDebug)
+	} else {
+		utils.SetLogLevel(utils.LogLevelInfo)
 	}
 
 	switch *t {
