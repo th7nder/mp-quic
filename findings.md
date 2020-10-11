@@ -12,3 +12,6 @@
 
 # Questions
 1. MPQUIC 2017 vs QUIC 2019?
+
+# Errors
+1. Server, Client -> AcceptStream; without any HELO from client, server is unable to send data
