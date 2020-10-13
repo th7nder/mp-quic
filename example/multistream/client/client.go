@@ -31,12 +31,13 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 	for {
 		n, err := s.Read(buf)
 		if err != nil {
-			if err != io.EOF {
-				fmt.Printf("[SID: %d] Error: %s\n", s.StreamID(), err)
+			if err == io.EOF {
+				break
 			}
-			break
+			fmt.Printf("[SID: %d] Error: %s\n", s.StreamID(), err)
+		} else {
+			readBytes += n
 		}
-		readBytes += n
 	}
 	elapsed := time.Since(start)
 

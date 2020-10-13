@@ -6,9 +6,8 @@ import (
 	"sync"
 
 	quic "github.com/lucas-clemente/quic-go"
-	"github.com/pkg/errors"
-
 	"github.com/lucas-clemente/quic-go/example/multistream/common"
+	"github.com/pkg/errors"
 )
 
 // Server listens on addr, waits on n streams and sends 100MB random file over each stream
@@ -66,10 +65,16 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 		panic(errors.Wrap(err, "failed to read HELO packet"))
 	}
 
-	fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
-	n, err := s.Write(data)
-	if err != nil {
-		fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
+	var written int
+
+	for written != len(data) {
+		fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
+		n, err := s.Write(data)
+		if err != nil {
+			fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
+		} else {
+			written += n
+		}
 	}
 
 	if err := s.Close(); err != nil {
