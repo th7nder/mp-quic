@@ -81,6 +81,6 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 		fmt.Printf("[SID: %d] Failed to close a stream", err)
 	}
 
-	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), n)
+	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), written)
 	wg.Done()
 }
