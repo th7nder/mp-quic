@@ -67,13 +67,16 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 
 	var written int
 
+	fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
 	for written != len(data) {
-		fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
 		n, err := s.Write(data)
 		if err != nil {
 			// fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
 		} else {
 			written += n
+		}
+		if n%1024*1024 == 0 {
+			fmt.Printf("[SID: %d] Wrote: %d", s.StreamID(), n)
 		}
 	}
 
