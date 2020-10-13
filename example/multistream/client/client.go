@@ -34,7 +34,7 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 			if err == io.EOF {
 				break
 			}
-			fmt.Printf("[SID: %d] Error: %s\n", s.StreamID(), err)
+			// fmt.Printf("[SID: %d] Error: %s\n", s.StreamID(), err)
 		} else {
 			readBytes += n
 		}
