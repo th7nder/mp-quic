@@ -2,7 +2,6 @@ package client
 
 import (
 	"crypto/tls"
-	"io"
 	"sync"
 	"time"
 
@@ -31,10 +30,8 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 	for {
 		n, err := s.Read(buf)
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
 			utils.Infof("[SID: %d] Error: %s", s.StreamID(), err)
+			break
 		} else {
 			readBytes += n
 		}
