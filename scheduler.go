@@ -245,6 +245,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 				for pathID, pth := range s.paths {
 					sntPkts, sntRetrans, sntLost := pth.sentPacketHandler.GetStatistics()
 					rcvPkts := pth.receivedPacketHandler.GetStatistics()
+					utils.Infof("Path %x: from: %s, to: %s", pathID, pth.conn.LocalAddr().String(), pth.conn.RemoteAddr().String())
 					utils.Infof("Path %x: sent %d retrans %d lost %d; rcv %d rtt %v", pathID, sntPkts, sntRetrans, sntLost, rcvPkts, pth.rttStats.SmoothedRTT())
 				}
 				s.pathsLock.RUnlock()
