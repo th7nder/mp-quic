@@ -2,32 +2,32 @@ package server
 
 import (
 	"crypto/rand"
-	"fmt"
 	"sync"
 	"time"
 
 	quic "github.com/lucas-clemente/quic-go"
 	"github.com/lucas-clemente/quic-go/example/multistream/common"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/pkg/errors"
 )
 
 // Server listens on addr, waits on n streams and sends 100MB random file over each stream
 func Server(addr string, streams int, size int) error {
-	fmt.Println("Generating random data")
+	utils.Infof("Generating random data")
 	data := make([]byte, size*1024*1024)
 	_, err := rand.Read(data)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate 100MB of data")
 	}
 
-	fmt.Println("Starting server")
+	utils.Infof("Starting server")
 	listener, err := quic.ListenAddr(addr, common.GenerateTLSConfig(), nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to listen on addr")
 	}
 
 	for {
-		fmt.Println("Waiting for a session")
+		utils.Infof("Waiting for a session")
 		sess, err := listener.Accept()
 		if err != nil {
 			return errors.Wrap(err, "failed to start session")
@@ -37,7 +37,7 @@ func Server(addr string, streams int, size int) error {
 }
 
 func handleSession(session quic.Session, data []byte, streams int) {
-	fmt.Println("Accepting streams")
+	utils.Infof("Accepting streams")
 	var wg sync.WaitGroup
 	for i := 0; i < streams; i++ {
 		wg.Add(1)
@@ -50,11 +50,11 @@ func handleSession(session quic.Session, data []byte, streams int) {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to close the session"))
 	}
-	fmt.Println("Finished session")
+	utils.Infof("Finished session")
 }
 
 func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
-	fmt.Println("Waiting for stream")
+	utils.Infof("Waiting for stream")
 	s, err := session.AcceptStream()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to accept a stream"))
@@ -67,18 +67,18 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 	}
 
 	start := time.Now()
-	fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
+	utils.Infof("[SID: %d] Accepted stream, starting to send data", s.StreamID())
 	n, err := s.Write(data)
 	if err != nil {
-		fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
+		utils.Infof("[SID: %d] Wrote: %d, failed to write data: %s", s.StreamID(), n, err)
 	}
 	elapsed := time.Since(start)
-	fmt.Printf("[SID: %d] Elapsed: %s\n", s.StreamID(), elapsed)
+	utils.Infof("[SID: %d] Elapsed: %s\n", s.StreamID(), elapsed)
 
 	if err := s.Close(); err != nil {
-		fmt.Printf("[SID: %d] Failed to close a stream", err)
+		utils.Infof("[SID: %d] Failed to close a stream", err)
 	}
 
-	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), n)
+	utils.Infof("[SID: %d] Successfully wrote: %d data", s.StreamID(), n)
 	wg.Done()
 }

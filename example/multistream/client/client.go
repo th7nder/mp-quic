@@ -2,29 +2,29 @@ package client
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io"
 	"sync"
 	"time"
 
 	quic "github.com/lucas-clemente/quic-go"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/pkg/errors"
 )
 
 func stream(session quic.Session, wg *sync.WaitGroup) {
-	fmt.Println("Waiting for stream")
+	utils.Infof("Waiting for stream")
 	s, err := session.OpenStream()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("[SID: %d] Opened\n", s.StreamID())
+	utils.Infof("[SID: %d] Opened\n", s.StreamID())
 
 	_, err = s.Write([]byte("HELO"))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to HELO"))
 	}
 
-	fmt.Printf("[SID: %d] Started data stream\n", s.StreamID())
+	utils.Infof("[SID: %d] Started data stream", s.StreamID())
 	buf := make([]byte, 1024)
 	var readBytes int
 	start := time.Now()
@@ -34,15 +34,14 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 			if err == io.EOF {
 				break
 			}
-			// fmt.Printf("[SID: %d] Error: %s\n", s.StreamID(), err)
+			utils.Infof("[SID: %d] Error: %s", s.StreamID(), err)
 		} else {
 			readBytes += n
 		}
 	}
 	elapsed := time.Since(start)
 
-	fmt.Printf("[SID: %d] Elapsed: %s, bytes read: %d\n", s.StreamID(), elapsed, readBytes)
-	time.Sleep(1 * time.Second)
+	utils.Infof("[SID: %d] Elapsed: %s, bytes read: %d", s.StreamID(), elapsed, readBytes)
 	wg.Done()
 }
 
