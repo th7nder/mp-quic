@@ -75,9 +75,6 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 		} else {
 			written += n
 		}
-		if n%1024*1024 == 0 {
-			fmt.Printf("[SID: %d] Wrote: %d", s.StreamID(), n)
-		}
 	}
 
 	if err := s.Close(); err != nil {
