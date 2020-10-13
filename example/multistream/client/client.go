@@ -42,6 +42,7 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 	elapsed := time.Since(start)
 
 	fmt.Printf("[SID: %d] Elapsed: %s, bytes read: %d\n", s.StreamID(), elapsed, readBytes)
+	time.Sleep(1 * time.Second)
 	wg.Done()
 }
 

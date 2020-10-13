@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"sync"
+	"time"
 
 	quic "github.com/lucas-clemente/quic-go"
 	"github.com/lucas-clemente/quic-go/example/multistream/common"
@@ -65,22 +66,19 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 		panic(errors.Wrap(err, "failed to read HELO packet"))
 	}
 
-	var written int
-
+	start := time.Now()
 	fmt.Printf("[SID: %d] Accepted stream, starting to send data\n", s.StreamID())
-	for written != len(data) {
-		n, err := s.Write(data)
-		if err != nil {
-			// fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
-		} else {
-			written += n
-		}
+	n, err := s.Write(data)
+	if err != nil {
+		fmt.Printf("[SID: %d] Wrote: %d, failed to write data: %s\n", s.StreamID(), n, err)
 	}
+	elapsed := time.Since(start)
+	fmt.Printf("[SID: %d] Elapsed: %s\n", s.StreamID(), elapsed)
 
 	if err := s.Close(); err != nil {
 		fmt.Printf("[SID: %d] Failed to close a stream", err)
 	}
 
-	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), written)
+	fmt.Printf("[SID: %d] Successfully wrote: %d data\n", s.StreamID(), n)
 	wg.Done()
 }
