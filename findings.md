@@ -91,6 +91,19 @@
 2020/10/13 21:31:04 Closing connection 21cbc4682a081988
 2020/10/13 21:31:04 Finished session
 ```
+## Drop one path
+```
+2020/10/14 09:09:37 [SID: 3] Accepted stream, starting to send data
+2020/10/14 09:10:36 [SID: 3] Elapsed: 59.024603902s
+2020/10/14 09:10:36 [SID: 3] Successfully wrote: 104857600 data
+2020/10/14 09:10:36 Info for stream 3 of fa06c6e98afb4059
+2020/10/14 09:10:36 Path 0: from: [::]:6121, to: 5.173.109.234:59312
+2020/10/14 09:10:36 Path 0: sent 6 retrans 1 lost 0; rcv 7 rtt 204.429ms
+2020/10/14 09:10:36 Path 1: from: [::]:6121, to: 5.173.109.234:47721
+2020/10/14 09:10:36 Path 1: sent 79346 retrans 15 lost 15; rcv 41293 rtt 77.892ms
+2020/10/14 09:10:36 Path 3: from: [::]:6121, to: 83.20.120.96:53661
+2020/10/14 09:10:36 Path 3: sent 1304 retrans 74 lost 72; rcv 638 rtt 74.602ms
+```
 
 # Errors
 1. Server, Client -> AcceptStream; without any HELO from client, server is unable to send data
