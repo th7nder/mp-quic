@@ -212,6 +212,10 @@ func (pcm *pconnManager) createPconns() error {
 			if err != nil {
 				return err
 			}
+			// disable IPv6 for now
+			if ip.To4() == nil {
+				continue
+			}
 			// If not Global Unicast, bypass
 			if !ip.IsGlobalUnicast() {
 				continue
