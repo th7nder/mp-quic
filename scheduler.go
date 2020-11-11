@@ -1,6 +1,9 @@
 package quic
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
@@ -11,11 +14,25 @@ import (
 
 type scheduler struct {
 	// XXX Currently round-robin based, inspired from MPTCP scheduler
-	quotas map[protocol.PathID]uint
+	quotas       map[protocol.PathID]uint
+	file         os.File
+	dataGatherer *bufio.Writer
 }
 
 func (sch *scheduler) setup() {
+	f, err := os.Create(fmt.Sprintf("scheduler_%s.csv", time.Now().Format(time.RFC3339)))
+	if err != nil {
+		panic(err)
+	}
+	sch.dataGatherer = bufio.NewWriterSize(f, 1<<24)
 	sch.quotas = make(map[protocol.PathID]uint)
+}
+
+func (sch *scheduler) close() {
+	if err := sch.dataGatherer.Flush(); err != nil {
+		panic(err)
+	}
+	sch.file.Close()
 }
 
 func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, retransmitPacket *ackhandler.Packet, pth *path) {
@@ -238,16 +255,19 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
 
-		utils.Infof(
-			"Path %x: from: %s, to: %s | in-flight: %d, srtt: %v, sent: %d, retrans: %d,  losses: %d",
-			pathID,
-			pth.conn.LocalAddr().String(),
-			pth.conn.RemoteAddr().String(),
-			sentStats.InFlight,
-			pth.rttStats.SmoothedRTT(),
-			sentStats.Packets,
-			sentStats.Retransmissions,
-			sentStats.Losses,
+		s.scheduler.dataGatherer.WriteString(
+			fmt.Sprintf(
+				"%d,%x,%s,%s,%d,%d,%d,%d,%d\n",
+				time.Now().UnixNano(),
+				pathID,
+				pth.conn.LocalAddr().String(),
+				pth.conn.RemoteAddr().String(),
+				sentStats.InFlight,
+				pth.rttStats.SmoothedRTT().Microseconds(),
+				sentStats.Packets,
+				sentStats.Retransmissions,
+				sentStats.Losses,
+			),
 		)
 	}
 

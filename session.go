@@ -730,6 +730,7 @@ func (s *session) closeRemote(e error) {
 func (s *session) Close(e error) error {
 	s.closeLocal(e)
 	<-s.ctx.Done()
+	s.scheduler.close()
 	return nil
 }
 
