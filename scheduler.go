@@ -251,6 +251,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	// Packet sent, so update its quota
 	sch.quotas[pth.pathID]++
 
+	s.pathsLock.RLock()
 	for pathID, pth := range s.paths {
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
@@ -270,6 +271,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 			),
 		)
 	}
+	s.pathsLock.RUnlock()
 
 	// Provide some logging if it is the last packet
 	for _, frame := range packet.frames {
