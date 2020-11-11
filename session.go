@@ -593,10 +593,10 @@ func (s *session) handleStreamFrame(frame *wire.StreamFrame) error {
 		s.pathsLock.RLock()
 		utils.Infof("Info for stream %x of %x", frame.StreamID, s.connectionID)
 		for pathID, pth := range s.paths {
-			sntPkts, sntRetrans, sntLost := pth.sentPacketHandler.GetStatistics()
+			stats := pth.sentPacketHandler.GetStatistics()
 			rcvPkts := pth.receivedPacketHandler.GetStatistics()
 			utils.Infof("Path %x: from: %s, to: %s", pathID, pth.conn.LocalAddr().String(), pth.conn.RemoteAddr().String())
-			utils.Infof("Path %x: sent %d retrans %d lost %d; rcv %d", pathID, sntPkts, sntRetrans, sntLost, rcvPkts)
+			utils.Infof("Path %x: sent %d retrans %d lost %d; rcv %d", pathID, stats.Packets, stats.Retransmissions, stats.Losses, rcvPkts)
 		}
 		s.pathsLock.RUnlock()
 	}

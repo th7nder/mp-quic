@@ -234,6 +234,23 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	// Packet sent, so update its quota
 	sch.quotas[pth.pathID]++
 
+	for pathID, pth := range s.paths {
+		sentStats := pth.sentPacketHandler.GetStatistics()
+		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
+
+		utils.Infof(
+			"Path %x: from: %s, to: %s | in-flight: %d, srtt: %v, sent: %d, retrans: %d,  losses: %d",
+			pathID,
+			pth.conn.LocalAddr().String(),
+			pth.conn.RemoteAddr().String(),
+			sentStats.InFlight,
+			pth.rttStats.SmoothedRTT(),
+			sentStats.Packets,
+			sentStats.Retransmissions,
+			sentStats.Losses,
+		)
+	}
+
 	// Provide some logging if it is the last packet
 	for _, frame := range packet.frames {
 		switch frame := frame.(type) {
@@ -243,10 +260,10 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 				s.pathsLock.RLock()
 				utils.Infof("Info for stream %x of %x", frame.StreamID, s.connectionID)
 				for pathID, pth := range s.paths {
-					sntPkts, sntRetrans, sntLost := pth.sentPacketHandler.GetStatistics()
+					stats := pth.sentPacketHandler.GetStatistics()
 					rcvPkts := pth.receivedPacketHandler.GetStatistics()
 					utils.Infof("Path %x: from: %s, to: %s", pathID, pth.conn.LocalAddr().String(), pth.conn.RemoteAddr().String())
-					utils.Infof("Path %x: sent %d retrans %d lost %d; rcv %d rtt %v", pathID, sntPkts, sntRetrans, sntLost, rcvPkts, pth.rttStats.SmoothedRTT())
+					utils.Infof("Path %x: sent %d retrans %d lost %d; rcv %d rtt %v", pathID, stats.Packets, stats.Retransmissions, stats.Losses, rcvPkts, pth.rttStats.SmoothedRTT())
 				}
 				s.pathsLock.RUnlock()
 			}

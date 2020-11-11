@@ -7,6 +7,13 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
+type SentPacketStatistics struct {
+	Packets         uint64
+	Retransmissions uint64
+	Losses          uint64
+	InFlight        protocol.ByteCount
+}
+
 // SentPacketHandler handles ACKs received for outgoing packets
 type SentPacketHandler interface {
 	// SentPacket may modify the packet
@@ -28,7 +35,7 @@ type SentPacketHandler interface {
 
 	DuplicatePacket(packet *Packet)
 
-	GetStatistics() (uint64, uint64, uint64)
+	GetStatistics() *SentPacketStatistics
 }
 
 // ReceivedPacketHandler handles ACKs needed to send for incoming packets
