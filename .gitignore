@@ -2,3 +2,5 @@ debug
 debug.test
 main
 example/multistream/multistream
+*.csv
+*.png
