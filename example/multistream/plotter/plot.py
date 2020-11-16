@@ -6,10 +6,62 @@ def clamp_time(time):
 	s = time[0]
 	for i in range(len(time)):
 		time[i] -= s
+
+def plot_inflights(ax4, filename, paths):
+	ax4.set_title('in-flight vs. time')
+	ax4.set_xlabel('time [s]')
+	ax4.set_ylabel('in-flight [kB]')
+
+	rows = []
+	streams = set()
+	with open(filename + '/str_aggr.csv') as f:
+		c = csv.reader(f)
+		for row in c:
+			rows.append(row)
+			streams.add(row[1])
+
+	for s in streams:
+		t = []
+		inFlights = []
+		for row in rows:
+			stream = row[1]
+			if stream != s:
+				continue
+			time = row[0]
+			inFlight = int(row[2]) / 1000 
+			t.append(int(time) / 1000 / 1000 / 1000)
+			inFlights.append(inFlight)
+		clamp_time(t)
+		ax4.plot(t, inFlights, label=f"Stream {s} | Aggregated ")
+
+	rows = []
+	with open(filename + '/str_per_int.csv') as f: 
+		c = csv.reader(f)
+		for row in c:
+			rows.append(row)
+
 	
+	for p in paths:
+		for s in streams:
+			t = []
+			inFlights = []
+			for row in rows:
+				stream = row[1]
+				path = row[2]
+				if path != p or stream != s:
+					continue
+				time = row[0]
+				inFlight = int(row[3]) / 1000 
+				t.append(int(time) / 1000 / 1000 / 1000)
+				inFlights.append(inFlight)
+			clamp_time(t)
+			ax4.plot(t, inFlights, label=f"Stream {s} | Path {p}")
+
+	ax4.legend()
+
 def plot_mp(filename, savefile, title):
 	rows = []
-	with open(filename) as f:
+	with open(filename + '/main.csv') as f:
 		c = csv.reader(f)
 		for row in c:
 			rows.append(row)
@@ -17,10 +69,13 @@ def plot_mp(filename, savefile, title):
 	paths = set()
 	for row in rows:
 		path = row[1]
+		if path == "0":
+			continue
 		paths.add(path)
 
-	fig, ((ax1), (ax2), (ax3)) = plt.subplots(3, 1, figsize=((40, 16)))
+	fig, ((ax1), (ax2), (ax3), (ax4)) = plt.subplots(4, 1, figsize=((40, 25)))
 	fig.suptitle(title)
+	plot_inflights(ax4, filename, paths)
 	ax1.set_title('in-flight vs. time')
 	ax1.set_xlabel('time [s]')
 	ax1.set_ylabel('in-flight [kB]')
@@ -72,26 +127,6 @@ def plot_mp(filename, savefile, title):
 	plt.savefig(savefile)
 
 
-# plot('../results/fiber.csv', 'quic_fiber.png', 'QUIC | Fiber over Wi-Fi 5GHz, 170/60Mbps, 100MB upload, 1 stream, unthrottled')
-# plot('../results/lte.csv', 'quic_lte.png', 'QUIC | LTE over Ethernet, 60/30Mbps, 100MB upload, 1 stream, unthrottled')
-
-# plot_mp('../results/multipath_unthrottled.csv', 'mpquic.png', 'MPQUIC | 100 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/multipath_1.csv', 'mpquic_1.png', 'MPQUIC | 100 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/multipath_2.csv', 'mpquic_2.png', 'MPQUIC | 100 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/multipath_3.csv', 'mpquic_3.png', 'MPQUIC | 1GB upload, 1 stream, unthrottled')
-plot_mp('../results/mq_u_1.csv', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
-plot_mp('../results/mq_u_2.csv', 'mq_u_2.png', 'MPQUIC | 800 MB upload, 1 stream, UNTHROTTLED (.78)')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
 
 
-# plot_mp('../results/q_t_1.csv', 'q_t_1.png', 'QUIC | 10 MB upload, THROTTLED')
-
-# plot_mp('../results/mp_t_2.csv', 'mp_t_2.png', 'MPQUIC | 400 MB upload, 1 stream, THROTTLED')
-# plot_mp('../results/mp_t_3.csv', 'mp_t_3.png', 'MPQUIC | 400 MB upload, 1 stream, THROTTLED')
-# plot_mp('../results/mp_t_4.csv', 'mp_t_4.png', 'MPQUIC | 400 MB upload, 1 stream, THROTTLED')
-# plot_mp('../results/mp_t_5.csv', 'mp_t_5.png', 'MPQUIC | 400 MB upload, 1 stream, THROTTLED')
-
-# plot_mp('../results/mp_u_1.csv', 'mp_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/mp_u_2.csv', 'mp_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/mp_u_3.csv', 'mp_u_3.png', 'MPQUIC | 400 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/mp_u_4.csv', 'mp_u_4.png', 'MPQUIC | 400 MB upload, 1 stream, unthrottled')
-# plot_mp('../results/mp_u_5.csv', 'mp_u_5.png', 'MPQUIC | 400 MB upload, 1 stream, unthrottled')

@@ -302,6 +302,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
 
+		now := time.Now()
 		s.streamsMap.Iterate(func(strm *stream) (bool, error) {
 			sid := strm.StreamID()
 			if sid < 3 {
@@ -309,7 +310,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 			}
 			s.scheduler.dataGathererStrPerInt.WriteString(fmt.Sprintf(
 				"%d,%x,%x,%d\n",
-				time.Now().UnixNano(),
+				now.UnixNano(),
 				sid,
 				pathID,
 				sentStats.StreamInFlights[sid],
@@ -321,7 +322,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 		s.scheduler.dataGatherer.WriteString(
 			fmt.Sprintf(
 				"%d,%x,%s,%s,%d,%d,%d,%d,%d\n",
-				time.Now().UnixNano(),
+				now.UnixNano(),
 				pathID,
 				pth.conn.LocalAddr().String(),
 				pth.conn.RemoteAddr().String(),
