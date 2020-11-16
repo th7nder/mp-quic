@@ -55,6 +55,7 @@ def plot_inflights(ax4, filename, paths):
 				t.append(int(time) / 1000 / 1000 / 1000)
 				inFlights.append(inFlight)
 			clamp_time(t)
+			print(f"Haha: {len(t)}")
 			ax4.plot(t, inFlights, label=f"Stream {s} | Path {p}")
 
 	ax4.legend()
@@ -127,6 +128,8 @@ def plot_mp(filename, savefile, title):
 	plt.savefig(savefile)
 
 
-plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+# plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+
 
 
