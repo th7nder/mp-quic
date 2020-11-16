@@ -32,7 +32,7 @@ def plot_inflights(ax4, filename, paths):
 			t.append(int(time) / 1000 / 1000 / 1000)
 			inFlights.append(inFlight)
 		clamp_time(t)
-		ax4.plot(t, inFlights, label=f"Stream {s} | Aggregated ")
+		ax4.plot(t, inFlights, label=f"Stream {s}")
 
 	rows = []
 	with open(filename + '/str_per_int.csv') as f: 
@@ -40,23 +40,34 @@ def plot_inflights(ax4, filename, paths):
 		for row in c:
 			rows.append(row)
 
-	
-	for p in paths:
 		for s in streams:
-			t = []
-			inFlights = []
-			for row in rows:
-				stream = row[1]
-				path = row[2]
-				if path != p or stream != s:
+			fll = []
+			tt = []
+			for p in paths:
+				t = []
+				inFlights = []
+				for row in rows:
+					stream = row[1]
+					path = row[2]
+					if path != p or stream != s:
+						continue
+					time = row[0]
+					inFlight = int(row[3]) / 1000 
+					t.append(int(time) / 1000 / 1000 / 1000)
+					inFlights.append(inFlight)
+				clamp_time(t)
+				if len(t) < 10:
 					continue
-				time = row[0]
-				inFlight = int(row[3]) / 1000 
-				t.append(int(time) / 1000 / 1000 / 1000)
-				inFlights.append(inFlight)
-			clamp_time(t)
-			print(f"Haha: {len(t)}")
-			ax4.plot(t, inFlights, label=f"Stream {s} | Path {p}")
+				if len(t) < len(tt):
+					tt = t
+				fll.append(np.array(inFlights))
+
+			for idx, fl in enumerate(fll):
+				fll[idx] = fll[idx][:len(tt)]
+			f = fll[0]
+			for fl in fll[1:]:
+				f += fl
+			ax4.plot(tt, f, label=f"Stream {s} | Summed")
 
 	ax4.legend()
 
@@ -128,8 +139,7 @@ def plot_mp(filename, savefile, title):
 	plt.savefig(savefile)
 
 
-# plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
-plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
 
 
 
