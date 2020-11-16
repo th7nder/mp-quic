@@ -19,6 +19,7 @@ type flowController struct {
 	remoteRTTs           map[protocol.PathID]time.Duration
 
 	bytesSent  protocol.ByteCount
+	inFlight   protocol.ByteCount
 	sendWindow protocol.ByteCount
 
 	// For statistics purpose
@@ -75,10 +76,19 @@ func (c *flowController) getSendWindow() protocol.ByteCount {
 
 func (c *flowController) AddBytesSent(n protocol.ByteCount) {
 	c.bytesSent += n
+	c.inFlight += n
+}
+
+func (c *flowController) AddBytesSentAcked(n protocol.ByteCount) {
+	c.inFlight -= n
 }
 
 func (c *flowController) GetBytesSent() protocol.ByteCount {
 	return c.bytesSent
+}
+
+func (c *flowController) GetBytesInFlight() protocol.ByteCount {
+	return c.inFlight
 }
 
 func (c *flowController) AddBytesRetrans(n protocol.ByteCount) {
@@ -182,7 +192,7 @@ func (c *flowController) maybeAdjustWindowIncrement() {
 	timeSinceLastWindowUpdate := time.Since(c.lastWindowUpdateTime)
 
 	var maxRemoteRTT time.Duration
-	for _, remoteRTT := range(c.remoteRTTs) {
+	for _, remoteRTT := range c.remoteRTTs {
 		maxRemoteRTT = utils.MaxDuration(maxRemoteRTT, remoteRTT)
 	}
 

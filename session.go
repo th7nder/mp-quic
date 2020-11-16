@@ -632,7 +632,7 @@ func (s *session) handleRstStreamFrame(frame *wire.RstStreamFrame) error {
 
 func (s *session) handleAckFrame(frame *wire.AckFrame) error {
 	pth := s.paths[frame.PathID]
-	err := pth.sentPacketHandler.ReceivedAck(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime)
+	err := pth.sentPacketHandler.ReceivedAck(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime, s.flowControlManager)
 	if err == nil && pth.rttStats.SmoothedRTT() > s.rttStats.SmoothedRTT() {
 		// Update the session RTT, which comes to take the max RTT on all paths
 		s.rttStats.UpdateSessionRTT(pth.rttStats.SmoothedRTT())
@@ -647,7 +647,7 @@ func (s *session) handleClosePathFrame(frame *wire.ClosePathFrame) error {
 	// This is safe because closePath checks this
 	pth := s.paths[frame.PathID]
 	// This allows the host to retransmit packets sent on this path that were not acked by the ClosePath frame
-	return pth.sentPacketHandler.ReceivedClosePath(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime)
+	return pth.sentPacketHandler.ReceivedClosePath(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime, s.flowControlManager)
 }
 
 func (s *session) closePath(pthID protocol.PathID, sendClosePathFrame bool) error {

@@ -14,25 +14,52 @@ import (
 
 type scheduler struct {
 	// XXX Currently round-robin based, inspired from MPTCP scheduler
-	quotas       map[protocol.PathID]uint
-	file         os.File
-	dataGatherer *bufio.Writer
+	quotas                map[protocol.PathID]uint
+	file                  *os.File
+	aggFile               *os.File
+	strPerIntFile         *os.File
+	dataGatherer          *bufio.Writer
+	dataGathererAggStr    *bufio.Writer
+	dataGathererStrPerInt *bufio.Writer
 }
 
 func (sch *scheduler) setup() {
+	sch.quotas = make(map[protocol.PathID]uint)
+
 	f, err := os.Create(fmt.Sprintf("scheduler_%s.csv", time.Now().Format(time.RFC3339)))
 	if err != nil {
 		panic(err)
 	}
+	fAggrStr, err := os.Create(fmt.Sprintf("scheduler_%s_str_aggr.csv", time.Now().Format(time.RFC3339)))
+	if err != nil {
+		panic(err)
+	}
+	fStrPerInt, err := os.Create(fmt.Sprintf("scheduler_%s_str_per_int.csv", time.Now().Format(time.RFC3339)))
+	if err != nil {
+		panic(err)
+	}
+
 	sch.dataGatherer = bufio.NewWriterSize(f, 1<<24)
-	sch.quotas = make(map[protocol.PathID]uint)
+	sch.file = f
+	sch.dataGathererAggStr = bufio.NewWriterSize(fAggrStr, 1<<24)
+	sch.aggFile = fAggrStr
+	sch.dataGathererStrPerInt = bufio.NewWriterSize(fStrPerInt, 1<<24)
+	sch.strPerIntFile = fStrPerInt
 }
 
 func (sch *scheduler) close() {
 	if err := sch.dataGatherer.Flush(); err != nil {
 		panic(err)
 	}
+	if err := sch.dataGathererAggStr.Flush(); err != nil {
+		panic(err)
+	}
+	if err := sch.dataGathererStrPerInt.Flush(); err != nil {
+		panic(err)
+	}
 	sch.file.Close()
+	sch.aggFile.Close()
+	sch.strPerIntFile.Close()
 }
 
 func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, retransmitPacket *ackhandler.Packet, pth *path) {
@@ -251,10 +278,45 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	// Packet sent, so update its quota
 	sch.quotas[pth.pathID]++
 
+	s.streamsMap.Iterate(func(strm *stream) (bool, error) {
+		sid := strm.StreamID()
+		if sid < 3 {
+			return true, nil
+		}
+		inFlight, err := s.flowControlManager.GetBytesInFlight(sid)
+		if err != nil {
+			return false, err
+		}
+		s.scheduler.dataGathererAggStr.WriteString(fmt.Sprintf(
+			"%d,%x,%d\n",
+			time.Now().UnixNano(),
+			sid,
+			inFlight,
+		))
+
+		return true, nil
+	})
+
 	s.pathsLock.RLock()
 	for pathID, pth := range s.paths {
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
+
+		s.streamsMap.Iterate(func(strm *stream) (bool, error) {
+			sid := strm.StreamID()
+			if sid < 3 {
+				return true, nil
+			}
+			s.scheduler.dataGathererStrPerInt.WriteString(fmt.Sprintf(
+				"%d,%x,%x,%d\n",
+				time.Now().UnixNano(),
+				sid,
+				pathID,
+				sentStats.StreamInFlights[sid],
+			))
+
+			return true, nil
+		})
 
 		s.scheduler.dataGatherer.WriteString(
 			fmt.Sprintf(

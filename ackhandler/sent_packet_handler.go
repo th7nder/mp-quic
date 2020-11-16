@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/lucas-clemente/quic-go/congestion"
+	"github.com/lucas-clemente/quic-go/internal/flowcontrol"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -85,6 +86,8 @@ type sentPacketHandler struct {
 	packets         uint64
 	retransmissions uint64
 	losses          uint64
+
+	streamInFlights map[protocol.StreamID]protocol.ByteCount
 }
 
 // NewSentPacketHandler creates a new sentPacketHandler
@@ -109,15 +112,17 @@ func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlg
 		rttStats:           rttStats,
 		congestion:         congestionControl,
 		onRTOCallback:      onRTOCallback,
+		streamInFlights:    make(map[protocol.StreamID]protocol.ByteCount),
 	}
 }
 
-func (h *sentPacketHandler) GetStatistics() (*SentPacketStatistics) {
+func (h *sentPacketHandler) GetStatistics() *SentPacketStatistics {
 	return &SentPacketStatistics{
-		Packets: h.packets,
-		Losses: h.losses,
+		Packets:         h.packets,
+		Losses:          h.losses,
 		Retransmissions: h.retransmissions,
-		InFlight: h.bytesInFlight,
+		InFlight:        h.bytesInFlight,
+		StreamInFlights: h.streamInFlights,
 	}
 }
 
@@ -164,6 +169,16 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	if isRetransmittable {
 		packet.SendTime = now
 		h.bytesInFlight += packet.Length
+
+		for _, frame := range packet.Frames {
+			if sf, ok := frame.(*wire.StreamFrame); ok {
+				if _, ok := h.streamInFlights[sf.StreamID]; !ok {
+					h.streamInFlights[sf.StreamID] = 0
+				}
+				h.streamInFlights[sf.StreamID] += sf.DataLen()
+			}
+		}
+
 		h.packetHistory.PushBack(*packet)
 		h.numNonRetransmittablePackets = 0
 	} else {
@@ -182,7 +197,7 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	return nil
 }
 
-func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time) error {
+func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time, fcm flowcontrol.FlowControlManager) error {
 	if ackFrame.LargestAcked > h.lastSentPacketNumber {
 		return errAckForUnsentPacket
 	}
@@ -216,7 +231,7 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 
 	if len(ackedPackets) > 0 {
 		for _, p := range ackedPackets {
-			h.onPacketAcked(p)
+			h.onPacketAcked(p, fcm)
 			h.congestion.OnPacketAcked(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
 		}
 	}
@@ -230,7 +245,7 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 	return nil
 }
 
-func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time) error {
+func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time, fcm flowcontrol.FlowControlManager) error {
 	if f.LargestAcked > h.lastSentPacketNumber {
 		return errAckForUnsentPacket
 	}
@@ -256,7 +271,7 @@ func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacket
 
 	if len(ackedPackets) > 0 {
 		for _, p := range ackedPackets {
-			h.onPacketAcked(p)
+			h.onPacketAcked(p, fcm)
 			h.congestion.OnPacketAcked(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
 		}
 	}
@@ -483,7 +498,14 @@ func (h *sentPacketHandler) GetAlarmTimeout() time.Time {
 	return h.alarm
 }
 
-func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement) {
+func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement, fcm flowcontrol.FlowControlManager) {
+	for _, frame := range packetElement.Value.Frames {
+		if sf, ok := frame.(*wire.StreamFrame); ok {
+			fcm.AddBytesSentAcked(sf.StreamID, sf.DataLen())
+			h.streamInFlights[sf.StreamID] -= sf.DataLen()
+		}
+	}
+
 	h.bytesInFlight -= packetElement.Value.Length
 	h.rtoCount = 0
 	h.tlpCount = 0
