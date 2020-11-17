@@ -41,8 +41,8 @@ def plot_inflights(ax4, filename, paths):
 			rows.append(row)
 
 		for s in streams:
-			fll = []
-			tt = []
+			# fll = []
+			# tt = []
 			for p in paths:
 				t = []
 				inFlights = []
@@ -56,18 +56,17 @@ def plot_inflights(ax4, filename, paths):
 					t.append(int(time) / 1000 / 1000 / 1000)
 					inFlights.append(inFlight)
 				clamp_time(t)
-				if len(t) < 10:
-					continue
-				if len(t) < len(tt):
-					tt = t
-				fll.append(np.array(inFlights))
+				ax4.plot(t, inFlights, label=f"Stream {s} | Path {p}")
 
-			for idx, fl in enumerate(fll):
-				fll[idx] = fll[idx][:len(tt)]
-			f = fll[0]
-			for fl in fll[1:]:
-				f += fl
-			ax4.plot(tt, f, label=f"Stream {s} | Summed")
+				# if len(t) < len(tt):
+				# 	tt = t
+				# fll.append(np.array(inFlights))
+
+			# for idx, fl in enumerate(fll):
+			# 	fll[idx] = fll[idx][:len(tt)]
+			# f = fll[0]
+			# for fl in fll[1:]:
+			# 	f += fl
 
 	ax4.legend()
 
@@ -85,9 +84,9 @@ def plot_mp(filename, savefile, title):
 			continue
 		paths.add(path)
 
-	fig, ((ax1), (ax2), (ax3), (ax4)) = plt.subplots(4, 1, figsize=((40, 25)))
+	fig, ((ax1), (ax2), (ax3)) = plt.subplots(3, 1, figsize=((40, 16)))
 	fig.suptitle(title)
-	plot_inflights(ax4, filename, paths)
+	# plot_inflights(ax4, filename, paths)
 	ax1.set_title('in-flight vs. time')
 	ax1.set_xlabel('time [s]')
 	ax1.set_ylabel('in-flight [kB]')
@@ -140,6 +139,11 @@ def plot_mp(filename, savefile, title):
 
 
 plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78); 14:55, 16.11.2020')
+
+plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
+
+
 
 
 
