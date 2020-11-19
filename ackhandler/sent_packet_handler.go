@@ -122,7 +122,6 @@ func (h *sentPacketHandler) GetStatistics() *SentPacketStatistics {
 		Losses:          h.losses,
 		Retransmissions: h.retransmissions,
 		InFlight:        h.bytesInFlight,
-		StreamInFlights: h.streamInFlights,
 	}
 }
 
@@ -169,16 +168,6 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	if isRetransmittable {
 		packet.SendTime = now
 		h.bytesInFlight += packet.Length
-
-		for _, frame := range packet.Frames {
-			if sf, ok := frame.(*wire.StreamFrame); ok {
-				if _, ok := h.streamInFlights[sf.StreamID]; !ok {
-					h.streamInFlights[sf.StreamID] = 0
-				}
-				h.streamInFlights[sf.StreamID] += sf.DataLen()
-			}
-		}
-
 		h.packetHistory.PushBack(*packet)
 		h.numNonRetransmittablePackets = 0
 	} else {
@@ -203,6 +192,7 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 	}
 
 	// duplicate or out-of-order ACK
+	// what in the actual fuck, like we're forcing to retransmit out-of-order packet; it may be right you know???
 	if withPacketNumber <= h.largestReceivedPacketWithAck {
 		return ErrDuplicateOrOutOfOrderAck
 	}
@@ -418,7 +408,10 @@ func (h *sentPacketHandler) detectLostPackets() {
 		if packet.PacketNumber > h.LargestAcked {
 			break
 		}
-
+		// something is fucking wrong here
+		// like
+		// we mark packet as lost after a time
+		// but when it was reordered, it'll be still marked as lost?????? -> BECAUSE we don't accept earlier acks
 		timeSinceSent := now.Sub(packet.SendTime)
 		if timeSinceSent > delayUntilLost {
 			// Update statistics
@@ -499,13 +492,6 @@ func (h *sentPacketHandler) GetAlarmTimeout() time.Time {
 }
 
 func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement, fcm flowcontrol.FlowControlManager) {
-	for _, frame := range packetElement.Value.Frames {
-		if sf, ok := frame.(*wire.StreamFrame); ok {
-			fcm.AddBytesSentAcked(sf.StreamID, sf.DataLen())
-			h.streamInFlights[sf.StreamID] -= sf.DataLen()
-		}
-	}
-
 	h.bytesInFlight -= packetElement.Value.Length
 	h.rtoCount = 0
 	h.tlpCount = 0

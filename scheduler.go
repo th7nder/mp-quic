@@ -279,45 +279,10 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	sch.quotas[pth.pathID]++
 
 	now := time.Now().UnixNano()
-	s.streamsMap.Iterate(func(strm *stream) (bool, error) {
-		sid := strm.StreamID()
-		if sid < 3 {
-			return true, nil
-		}
-		inFlight, err := s.flowControlManager.GetBytesInFlight(sid)
-		if err != nil {
-			return false, err
-		}
-		s.scheduler.dataGathererAggStr.WriteString(fmt.Sprintf(
-			"%d,%x,%d\n",
-			now,
-			sid,
-			inFlight,
-		))
-
-		return true, nil
-	})
-
 	s.pathsLock.RLock()
 	for pathID, pth := range s.paths {
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
-
-		s.streamsMap.Iterate(func(strm *stream) (bool, error) {
-			sid := strm.StreamID()
-			if sid < 3 {
-				return true, nil
-			}
-			s.scheduler.dataGathererStrPerInt.WriteString(fmt.Sprintf(
-				"%d,%x,%x,%d\n",
-				now,
-				sid,
-				pathID,
-				sentStats.StreamInFlights[sid],
-			))
-
-			return true, nil
-		})
 
 		s.scheduler.dataGatherer.WriteString(
 			fmt.Sprintf(

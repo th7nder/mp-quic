@@ -20,8 +20,6 @@ type FlowControlManager interface {
 	GetReceiveWindow(streamID protocol.StreamID) (protocol.ByteCount, error)
 	// methods needed for sending data
 	AddBytesSent(streamID protocol.StreamID, n protocol.ByteCount) error
-	AddBytesSentAcked(streamID protocol.StreamID, n protocol.ByteCount) error
-	GetBytesInFlight(streamID protocol.StreamID) (protocol.ByteCount, error)
 	SendWindowSize(streamID protocol.StreamID) (protocol.ByteCount, error)
 	RemainingConnectionWindowSize() protocol.ByteCount
 	UpdateWindow(streamID protocol.StreamID, offset protocol.ByteCount) (bool, error)

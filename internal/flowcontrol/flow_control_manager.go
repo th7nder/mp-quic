@@ -191,33 +191,6 @@ func (f *flowControlManager) AddBytesSent(streamID protocol.StreamID, n protocol
 }
 
 // streamID must not be 0 here
-func (f *flowControlManager) AddBytesSentAcked(streamID protocol.StreamID, n protocol.ByteCount) error {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	fc, err := f.getFlowController(streamID)
-	if err != nil {
-		return err
-	}
-
-	fc.AddBytesSentAcked(n)
-
-	return nil
-}
-
-func (f *flowControlManager) GetBytesInFlight(streamID protocol.StreamID) (protocol.ByteCount, error) {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	fc, err := f.getFlowController(streamID)
-	if err != nil {
-		return 0, err
-	}
-
-	return fc.GetBytesInFlight(), nil
-}
-
-// streamID must not be 0 here
 func (f *flowControlManager) GetBytesSent(streamID protocol.StreamID) (protocol.ByteCount, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
