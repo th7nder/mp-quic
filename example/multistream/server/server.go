@@ -14,7 +14,7 @@ import (
 // Server listens on addr, waits on n streams and sends 100MB random file over each stream
 func Server(addr string, streams int, size int) error {
 	utils.Infof("Generating random data")
-	data := make([]byte, size*100*100)
+	data := make([]byte, size*1000*1000)
 	_, err := rand.Read(data)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate 100MB of data")
