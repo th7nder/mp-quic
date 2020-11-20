@@ -63,6 +63,7 @@ func (b *Base) OnAckReceived(pathID protocol.PathID, packetNumber protocol.Packe
 	defer b.mut.Unlock()
 	difference := time.Now().Sub(b.packets[pathID][packetNumber])
 
+	fmt.Println("JACIENIEMOGE, %d %d %d", pathID, packetNumber, difference.Microseconds())
 	b.rttWriter.WriteString(
 		fmt.Sprintf(
 			"%d,%d,%d\n",
