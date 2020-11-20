@@ -60,10 +60,9 @@ def plot_mp(filename, savefile, title):
 	paths = set()
 	for row in rows:
 		path = row[1]
-		if path == "0":
-			continue
 		paths.add(path)
 
+	print(paths)
 	fig, ((ax1), (ax2), (ax3), (ax4)) = plt.subplots(4, 1, figsize=((40, 25)))
 	fig.suptitle(title)
 	plot_rtts(filename, paths, ax4)
@@ -124,7 +123,14 @@ def plot_mp(filename, savefile, title):
 
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
 
-plot_mp('../results/mq_u_3', 'mq_u_3.png', 'MPQUIC | 400 MB upload, 1 stream UNTHROTTLED (.78); 05:03, 20.11.2020')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 200 MB upload, 1 stream UNTHROTTLED (.78); 05:21, 20.11.2020')
+
+plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:29, 20.11.2020')
+
+plot_mp('../results/mq_u_3', 'mq_u_3.png', 'MPQUIC | 100 MB upload, 1 stream UNTHROTTLED (.78); 05:03, 20.11.2020')
+
+plot_mp('../results/q_u_1', 'q_u_1.png', 'QUIC | 100 MB upload, 1 stream FIBER UNTHROTTLED (.78); 05:03, 20.11.2020')
+
 
 
 
