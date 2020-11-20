@@ -56,9 +56,6 @@ func (b *Base) OnPacketSent(pathID protocol.PathID, packetNumber protocol.Packet
 }
 
 func (b *Base) OnAckReceived(pathID protocol.PathID, packetNumber protocol.PacketNumber) {
-	if pathID == 0 {
-		return
-	}
 	b.mut.Lock()
 	defer b.mut.Unlock()
 	difference := time.Now().Sub(b.packets[pathID][packetNumber])
