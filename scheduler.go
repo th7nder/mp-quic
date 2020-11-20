@@ -1,12 +1,10 @@
 package quic
 
 import (
-	"bufio"
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
+	"github.com/lucas-clemente/quic-go/datagatherer"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -14,52 +12,11 @@ import (
 
 type scheduler struct {
 	// XXX Currently round-robin based, inspired from MPTCP scheduler
-	quotas                map[protocol.PathID]uint
-	file                  *os.File
-	aggFile               *os.File
-	strPerIntFile         *os.File
-	dataGatherer          *bufio.Writer
-	dataGathererAggStr    *bufio.Writer
-	dataGathererStrPerInt *bufio.Writer
+	quotas map[protocol.PathID]uint
 }
 
 func (sch *scheduler) setup() {
 	sch.quotas = make(map[protocol.PathID]uint)
-
-	f, err := os.Create(fmt.Sprintf("scheduler_%s.csv", time.Now().Format(time.RFC3339)))
-	if err != nil {
-		panic(err)
-	}
-	fAggrStr, err := os.Create(fmt.Sprintf("scheduler_%s_str_aggr.csv", time.Now().Format(time.RFC3339)))
-	if err != nil {
-		panic(err)
-	}
-	fStrPerInt, err := os.Create(fmt.Sprintf("scheduler_%s_str_per_int.csv", time.Now().Format(time.RFC3339)))
-	if err != nil {
-		panic(err)
-	}
-
-	sch.dataGatherer = bufio.NewWriterSize(f, 1<<24)
-	sch.file = f
-	sch.dataGathererAggStr = bufio.NewWriterSize(fAggrStr, 1<<24)
-	sch.aggFile = fAggrStr
-	sch.dataGathererStrPerInt = bufio.NewWriterSize(fStrPerInt, 1<<24)
-	sch.strPerIntFile = fStrPerInt
-}
-
-func (sch *scheduler) close() {
-	if err := sch.dataGatherer.Flush(); err != nil {
-		panic(err)
-	}
-	if err := sch.dataGathererAggStr.Flush(); err != nil {
-		panic(err)
-	}
-	if err := sch.dataGathererStrPerInt.Flush(); err != nil {
-		panic(err)
-	}
-	sch.file.Close()
-	sch.aggFile.Close()
-	sch.strPerIntFile.Close()
 }
 
 func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, retransmitPacket *ackhandler.Packet, pth *path) {
@@ -278,26 +235,19 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	// Packet sent, so update its quota
 	sch.quotas[pth.pathID]++
 
-	now := time.Now().UnixNano()
 	s.pathsLock.RLock()
 	for pathID, pth := range s.paths {
 		sentStats := pth.sentPacketHandler.GetStatistics()
-		// rcvPkts := pth.receivedPacketHandler.GetStatistics()
-
-		s.scheduler.dataGatherer.WriteString(
-			fmt.Sprintf(
-				"%d,%x,%s,%s,%d,%d,%d,%d,%d\n",
-				now,
-				pathID,
-				pth.conn.LocalAddr().String(),
-				pth.conn.RemoteAddr().String(),
-				sentStats.InFlight,
-				pth.rttStats.SmoothedRTT().Microseconds(),
-				sentStats.Packets,
-				sentStats.Retransmissions,
-				sentStats.Losses,
-			),
-		)
+		s.dataGatherer.OnPathGatherSentStats(&datagatherer.GatherSentStatsArgs{
+			PathID:          pathID,
+			LocalAddr:       pth.conn.LocalAddr(),
+			RemoteAddr:      pth.conn.RemoteAddr(),
+			SRTT:            pth.rttStats.SmoothedRTT(),
+			InFlight:        sentStats.InFlight,
+			Losses:          sentStats.Losses,
+			Packets:         sentStats.Packets,
+			Retransmissions: sentStats.Retransmissions,
+		})
 	}
 	s.pathsLock.RUnlock()
 
@@ -327,6 +277,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 		Length:          protocol.ByteCount(len(packet.raw)),
 		EncryptionLevel: packet.encryptionLevel,
 	}
+	s.dataGatherer.OnPacketSent(pth.pathID, packet.number)
 
 	return pkt, true, nil
 }

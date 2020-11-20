@@ -11,6 +11,7 @@ import (
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
 	"github.com/lucas-clemente/quic-go/congestion"
+	"github.com/lucas-clemente/quic-go/datagatherer"
 	"github.com/lucas-clemente/quic-go/internal/flowcontrol"
 	"github.com/lucas-clemente/quic-go/internal/handshake"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
@@ -123,7 +124,8 @@ type session struct {
 	pathManager         *pathManager
 	pathManagerLaunched bool
 
-	scheduler *scheduler
+	scheduler    *scheduler
+	dataGatherer datagatherer.DataGatherer
 }
 
 var _ Session = &session{}
@@ -185,6 +187,7 @@ func (s *session) setup(
 	conn connection,
 	pconnMgr *pconnManager,
 ) (packetHandler, <-chan handshakeEvent, error) {
+	s.dataGatherer = datagatherer.NewBase()
 	aeadChanged := make(chan protocol.EncryptionLevel, 2)
 	s.aeadChanged = aeadChanged
 	handshakeChan := make(chan handshakeEvent, 3)
@@ -632,7 +635,7 @@ func (s *session) handleRstStreamFrame(frame *wire.RstStreamFrame) error {
 
 func (s *session) handleAckFrame(frame *wire.AckFrame) error {
 	pth := s.paths[frame.PathID]
-	err := pth.sentPacketHandler.ReceivedAck(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime, s.flowControlManager)
+	err := pth.sentPacketHandler.ReceivedAck(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime)
 	if err == nil && pth.rttStats.SmoothedRTT() > s.rttStats.SmoothedRTT() {
 		// Update the session RTT, which comes to take the max RTT on all paths
 		s.rttStats.UpdateSessionRTT(pth.rttStats.SmoothedRTT())
@@ -647,7 +650,7 @@ func (s *session) handleClosePathFrame(frame *wire.ClosePathFrame) error {
 	// This is safe because closePath checks this
 	pth := s.paths[frame.PathID]
 	// This allows the host to retransmit packets sent on this path that were not acked by the ClosePath frame
-	return pth.sentPacketHandler.ReceivedClosePath(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime, s.flowControlManager)
+	return pth.sentPacketHandler.ReceivedClosePath(frame, pth.lastRcvdPacketNumber, pth.lastNetworkActivityTime)
 }
 
 func (s *session) closePath(pthID protocol.PathID, sendClosePathFrame bool) error {
@@ -730,7 +733,7 @@ func (s *session) closeRemote(e error) {
 func (s *session) Close(e error) error {
 	s.closeLocal(e)
 	<-s.ctx.Done()
-	s.scheduler.close()
+	s.dataGatherer.Close()
 	return nil
 }
 

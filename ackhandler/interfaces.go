@@ -3,7 +3,6 @@ package ackhandler
 import (
 	"time"
 
-	"github.com/lucas-clemente/quic-go/internal/flowcontrol"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
@@ -13,17 +12,16 @@ type SentPacketStatistics struct {
 	Retransmissions uint64
 	Losses          uint64
 	InFlight        protocol.ByteCount
-	StreamInFlights map[protocol.StreamID]protocol.ByteCount
 }
 
 // SentPacketHandler handles ACKs received for outgoing packets
 type SentPacketHandler interface {
 	// SentPacket may modify the packet
 	SentPacket(packet *Packet) error
-	ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, recvTime time.Time, fcm flowcontrol.FlowControlManager) error
+	ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, recvTime time.Time) error
 
 	// Specific to multipath operation
-	ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, recvTime time.Time, fcm flowcontrol.FlowControlManager) error
+	ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, recvTime time.Time) error
 	SetInflightAsLost()
 
 	SendingAllowed() bool

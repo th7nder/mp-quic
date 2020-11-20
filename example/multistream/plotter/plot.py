@@ -7,68 +7,39 @@ def clamp_time(time):
 	for i in range(len(time)):
 		time[i] -= s
 
-def plot_inflights(ax4, filename, paths):
-	ax4.set_title('in-flight vs. time')
-	ax4.set_xlabel('time [s]')
-	ax4.set_ylabel('in-flight [kB]')
+def plot_rtts(filename, paths, ax4):
+	ax4.set_title('packet number vs. time to ack')
+	ax4.set_xlabel('packet number')
+	ax4.set_ylabel('time to ACK')
 
 	rows = []
-	streams = set()
-	with open(filename + '/str_aggr.csv') as f:
+	with open(filename + '/rtt.csv') as f:
 		c = csv.reader(f)
 		for row in c:
 			rows.append(row)
-			streams.add(row[1])
 
-	for s in streams:
-		t = []
-		inFlights = []
+	for p in paths:
+		packets = []
+		delays = []
 		for row in rows:
-			stream = row[1]
-			if stream != s:
+			path = row[0]
+			if path != p:
 				continue
-			time = row[0]
-			inFlight = int(row[2]) / 1000 
-			t.append(int(time) / 1000 / 1000 / 1000)
-			inFlights.append(inFlight)
-		clamp_time(t)
-		ax4.plot(t, inFlights, label=f"Stream {s}")
 
-	rows = []
-	with open(filename + '/str_per_int.csv') as f: 
-		c = csv.reader(f)
-		for row in c:
-			rows.append(row)
+			pn = int(row[1])
+			delay = int(row[2]) / 1000
+			packets.append(pn)
+			delays.append(delay)
 
-		for s in streams:
-			# fll = []
-			# tt = []
-			for p in paths:
-				t = []
-				inFlights = []
-				for row in rows:
-					stream = row[1]
-					path = row[2]
-					if path != p or stream != s:
-						continue
-					time = row[0]
-					inFlight = int(row[3]) / 1000 
-					t.append(int(time) / 1000 / 1000 / 1000)
-					inFlights.append(inFlight)
-				clamp_time(t)
-				ax4.plot(t, inFlights, label=f"Stream {s} | Path {p}")
+		if p == "3":
+			l = "Fiber over WiFi 5Ghz 170/60Mbps"
+		else:
+			l = "LTE over Ethernet 60/30Mbps"
 
-				# if len(t) < len(tt):
-				# 	tt = t
-				# fll.append(np.array(inFlights))
-
-			# for idx, fl in enumerate(fll):
-			# 	fll[idx] = fll[idx][:len(tt)]
-			# f = fll[0]
-			# for fl in fll[1:]:
-			# 	f += fl
+		ax4.plot(packets, delays, label=l)
 
 	ax4.legend()
+
 
 def plot_mp(filename, savefile, title):
 	rows = []
@@ -84,8 +55,9 @@ def plot_mp(filename, savefile, title):
 			continue
 		paths.add(path)
 
-	fig, ((ax1), (ax2), (ax3)) = plt.subplots(3, 1, figsize=((40, 16)))
+	fig, ((ax1), (ax2), (ax3), (ax4)) = plt.subplots(4, 1, figsize=((40, 25)))
 	fig.suptitle(title)
+	plot_rtts(filename, paths, ax4)
 	# plot_inflights(ax4, filename, paths)
 	ax1.set_title('in-flight vs. time')
 	ax1.set_xlabel('time [s]')
@@ -138,10 +110,13 @@ def plot_mp(filename, savefile, title):
 	plt.savefig(savefile)
 
 
-plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
-plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78); 14:55, 16.11.2020')
+# plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
+# plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78); 14:55, 16.11.2020')
 
-plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
+# plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
+
+plot_mp('../results/mq_u_3', 'mq_u_3.png', 'MPQUIC | 400 MB upload, 1 stream localhost; 03:31, 20.11.2020')
+
 
 
 

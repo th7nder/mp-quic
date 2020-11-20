@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/lucas-clemente/quic-go/congestion"
-	"github.com/lucas-clemente/quic-go/internal/flowcontrol"
+	"github.com/lucas-clemente/quic-go/datagatherer"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -86,12 +86,12 @@ type sentPacketHandler struct {
 	packets         uint64
 	retransmissions uint64
 	losses          uint64
-
-	streamInFlights map[protocol.StreamID]protocol.ByteCount
+	dataGatherer    datagatherer.DataGatherer
+	pathID          protocol.PathID
 }
 
 // NewSentPacketHandler creates a new sentPacketHandler
-func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool) SentPacketHandler {
+func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool, dataGatherer datagatherer.DataGatherer, pathID protocol.PathID) SentPacketHandler {
 	var congestionControl congestion.SendAlgorithm
 
 	if cong != nil {
@@ -112,7 +112,7 @@ func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlg
 		rttStats:           rttStats,
 		congestion:         congestionControl,
 		onRTOCallback:      onRTOCallback,
-		streamInFlights:    make(map[protocol.StreamID]protocol.ByteCount),
+		dataGatherer:       dataGatherer,
 	}
 }
 
@@ -186,7 +186,7 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	return nil
 }
 
-func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time, fcm flowcontrol.FlowControlManager) error {
+func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time) error {
 	if ackFrame.LargestAcked > h.lastSentPacketNumber {
 		return errAckForUnsentPacket
 	}
@@ -221,7 +221,7 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 
 	if len(ackedPackets) > 0 {
 		for _, p := range ackedPackets {
-			h.onPacketAcked(p, fcm)
+			h.onPacketAcked(p)
 			h.congestion.OnPacketAcked(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
 		}
 	}
@@ -235,7 +235,7 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 	return nil
 }
 
-func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time, fcm flowcontrol.FlowControlManager) error {
+func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time) error {
 	if f.LargestAcked > h.lastSentPacketNumber {
 		return errAckForUnsentPacket
 	}
@@ -261,7 +261,7 @@ func (h *sentPacketHandler) ReceivedClosePath(f *wire.ClosePathFrame, withPacket
 
 	if len(ackedPackets) > 0 {
 		for _, p := range ackedPackets {
-			h.onPacketAcked(p, fcm)
+			h.onPacketAcked(p)
 			h.congestion.OnPacketAcked(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
 		}
 	}
@@ -491,7 +491,8 @@ func (h *sentPacketHandler) GetAlarmTimeout() time.Time {
 	return h.alarm
 }
 
-func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement, fcm flowcontrol.FlowControlManager) {
+func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement) {
+	h.dataGatherer.OnAckReceived(h.pathID, packetElement.Value.PacketNumber)
 	h.bytesInFlight -= packetElement.Value.Length
 	h.rtoCount = 0
 	h.tlpCount = 0
