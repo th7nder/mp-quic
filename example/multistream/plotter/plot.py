@@ -8,9 +8,9 @@ def clamp_time(time):
 		time[i] -= s
 
 def plot_rtts(filename, paths, ax4):
-	ax4.set_title('packet number vs. time to ack')
-	ax4.set_xlabel('packet number')
-	ax4.set_ylabel('time to ACK')
+	ax4.set_title('byte offset vs. delay to receive')
+	ax4.set_xlabel('byte offset')
+	ax4.set_ylabel('delay [ms]')
 
 	rows = []
 	with open(filename + '/rtt.csv') as f:
@@ -18,29 +18,34 @@ def plot_rtts(filename, paths, ax4):
 		for row in c:
 			rows.append(row)
 
-	for p in paths:
+
+	streams = set()
+	for row in rows:
+		stream = row[0]
+		# skip crypto stream
+		if stream == "1":
+			continue 
+		streams.add(stream)
+
+	for stream in streams:
 		pds = []
 		for row in rows:
-			path = row[0]
-			if path != p:
+			s = row[0]
+			if stream != s:
 				continue
 
 			pn = int(row[1])
 			delay = int(row[2])
 			if delay != -1:
-				delay /= 1000
+				# nanoseconds
+				delay /= 1000 * 1000
 			pds.append((pn, delay))
-
-		if p == "3":
-			l = "Fiber over WiFi 5Ghz 170/60Mbps"
-		else:
-			l = "LTE over Ethernet 60/30Mbps"
 
 		pds.sort(key=lambda k: k[0])
 		packets = list(map(lambda x: x[0], pds))
 		delays = list(map(lambda x: x[1], pds))
 		print(sum([x for x in delays if x == -1]))
-		ax4.plot(packets, delays, label=l)
+		ax4.plot(packets, delays, label=f"Stream {stream}")
 
 	ax4.legend()
 
@@ -119,7 +124,7 @@ def plot_mp(filename, savefile, title):
 
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
 
-plot_mp('../results/mq_u_3', 'mq_u_3.png', 'MPQUIC | 400 MB upload, 1 stream localhost; 03:31, 20.11.2020')
+plot_mp('../results/mq_u_3', 'mq_u_3.png', 'MPQUIC | 400 MB upload, 1 stream UNTHROTTLED (.78); 05:03, 20.11.2020')
 
 
 

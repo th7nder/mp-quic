@@ -79,6 +79,7 @@ func (b *Base) OnAckReceived(pathID protocol.PathID, frames []wire.Frame) {
 					difference.Nanoseconds(),
 				),
 			)
+			delete(b.chunks[frame.StreamID], frame.Offset)
 		default:
 		}
 	}
