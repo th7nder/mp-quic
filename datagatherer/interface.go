@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
+	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
 type GatherSentStatsArgs struct {
@@ -19,8 +20,8 @@ type GatherSentStatsArgs struct {
 }
 
 type DataGatherer interface {
-	OnPacketSent(pathID protocol.PathID, packetNumber protocol.PacketNumber)
-	OnAckReceived(pathID protocol.PathID, packetNumber protocol.PacketNumber)
+	OnPacketSent(pathID protocol.PathID, frames []wire.Frame)
+	OnAckReceived(pathID protocol.PathID, frames []wire.Frame)
 	OnPathGatherSentStats(args *GatherSentStatsArgs)
 
 	Close()

@@ -493,7 +493,7 @@ func (h *sentPacketHandler) GetAlarmTimeout() time.Time {
 }
 
 func (h *sentPacketHandler) onPacketAcked(packetElement *PacketElement) {
-	h.dataGatherer.OnAckReceived(h.pathID, packetElement.Value.PacketNumber)
+	h.dataGatherer.OnAckReceived(h.pathID, packetElement.Value.Frames)
 	h.bytesInFlight -= packetElement.Value.Length
 	h.rtoCount = 0
 	h.tlpCount = 0

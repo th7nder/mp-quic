@@ -277,7 +277,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 		Length:          protocol.ByteCount(len(packet.raw)),
 		EncryptionLevel: packet.encryptionLevel,
 	}
-	s.dataGatherer.OnPacketSent(pth.pathID, packet.number)
+	s.dataGatherer.OnPacketSent(pth.pathID, packet.frames)
 
 	return pkt, true, nil
 }

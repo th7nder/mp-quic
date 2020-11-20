@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
+	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
 type Base struct {
-	packets     map[protocol.PathID]map[protocol.PacketNumber]time.Time
+	chunks      map[protocol.StreamID]map[protocol.ByteCount]time.Time
 	rttFile     *os.File
 	rttWriter   *bufio.Writer
 	pathsFile   *os.File
@@ -34,7 +35,7 @@ func NewBase() *Base {
 	}
 
 	return &Base{
-		packets:     make(map[protocol.PathID]map[protocol.PacketNumber]time.Time),
+		chunks:      make(map[protocol.StreamID]map[protocol.ByteCount]time.Time),
 		rttFile:     rttFile,
 		rttWriter:   bufio.NewWriterSize(rttFile, 1<<24),
 		pathsFile:   pathsFile,
@@ -42,33 +43,45 @@ func NewBase() *Base {
 	}
 }
 
-func (b *Base) OnPacketSent(pathID protocol.PathID, packetNumber protocol.PacketNumber) {
-	if pathID == 0 {
-		return
-	}
+func (b *Base) OnPacketSent(pathID protocol.PathID, frames []wire.Frame) {
 	b.mut.Lock()
 	defer b.mut.Unlock()
-	if _, ok := b.packets[pathID]; !ok {
-		b.packets[pathID] = make(map[protocol.PacketNumber]time.Time)
-	}
 
-	b.packets[pathID][packetNumber] = time.Now()
+	now := time.Now()
+	for _, frame := range frames {
+		switch frame := frame.(type) {
+		case *wire.StreamFrame:
+			// given that offset + datalen are not overlapping
+			if _, ok := b.chunks[frame.StreamID]; !ok {
+				b.chunks[frame.StreamID] = make(map[protocol.ByteCount]time.Time)
+			}
+			b.chunks[frame.StreamID][frame.Offset] = now
+		default:
+		}
+	}
 }
 
-func (b *Base) OnAckReceived(pathID protocol.PathID, packetNumber protocol.PacketNumber) {
+func (b *Base) OnAckReceived(pathID protocol.PathID, frames []wire.Frame) {
 	b.mut.Lock()
 	defer b.mut.Unlock()
-	difference := time.Now().Sub(b.packets[pathID][packetNumber])
 
-	b.rttWriter.WriteString(
-		fmt.Sprintf(
-			"%d,%d,%d\n",
-			pathID,
-			packetNumber,
-			difference.Microseconds(),
-		),
-	)
-	delete(b.packets[pathID], packetNumber)
+	now := time.Now()
+	for _, frame := range frames {
+		switch frame := frame.(type) {
+		case *wire.StreamFrame:
+			difference := now.Sub(b.chunks[frame.StreamID][frame.Offset])
+			// streamID || offset || delay (ns)
+			b.rttWriter.WriteString(
+				fmt.Sprintf(
+					"%d,%d,%d\n",
+					frame.StreamID,
+					frame.Offset,
+					difference.Nanoseconds(),
+				),
+			)
+		default:
+		}
+	}
 }
 
 func (b *Base) OnPathGatherSentStats(args *GatherSentStatsArgs) {
@@ -89,13 +102,13 @@ func (b *Base) OnPathGatherSentStats(args *GatherSentStatsArgs) {
 }
 
 func (b *Base) Close() {
-	for pathID, packets := range b.packets {
-		for packetNumber := range packets {
+	for streamID, stream := range b.chunks {
+		for offset := range stream {
 			b.rttWriter.WriteString(
 				fmt.Sprintf(
 					"%d,%d,%d\n",
-					pathID,
-					packetNumber,
+					streamID,
+					offset,
 					-1,
 				),
 			)
