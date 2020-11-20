@@ -37,9 +37,9 @@ func NewBase() *Base {
 	return &Base{
 		chunks:      make(map[protocol.StreamID]map[protocol.ByteCount]time.Time),
 		rttFile:     rttFile,
-		rttWriter:   bufio.NewWriterSize(rttFile, 1<<24),
+		rttWriter:   bufio.NewWriterSize(rttFile, 100*1000*1000),
 		pathsFile:   pathsFile,
-		pathsWriter: bufio.NewWriterSize(pathsFile, 1<<24),
+		pathsWriter: bufio.NewWriterSize(pathsFile, 100*1000*1000),
 	}
 }
 
