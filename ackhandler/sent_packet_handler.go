@@ -113,6 +113,7 @@ func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlg
 		congestion:         congestionControl,
 		onRTOCallback:      onRTOCallback,
 		dataGatherer:       dataGatherer,
+		pathID:             pathID,
 	}
 }
 
