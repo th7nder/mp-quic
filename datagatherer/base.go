@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
@@ -15,6 +16,8 @@ type Base struct {
 	rttWriter   *bufio.Writer
 	pathsFile   *os.File
 	pathsWriter *bufio.Writer
+
+	mut sync.Mutex
 }
 
 func NewBase() *Base {
@@ -40,6 +43,11 @@ func NewBase() *Base {
 }
 
 func (b *Base) OnPacketSent(pathID protocol.PathID, packetNumber protocol.PacketNumber) {
+	if pathID == 0 {
+		return
+	}
+	b.mut.Lock()
+	defer b.mut.Unlock()
 	if _, ok := b.packets[pathID]; !ok {
 		b.packets[pathID] = make(map[protocol.PacketNumber]time.Time)
 	}
@@ -48,6 +56,11 @@ func (b *Base) OnPacketSent(pathID protocol.PathID, packetNumber protocol.Packet
 }
 
 func (b *Base) OnAckReceived(pathID protocol.PathID, packetNumber protocol.PacketNumber) {
+	if pathID == 0 {
+		return
+	}
+	b.mut.Lock()
+	defer b.mut.Unlock()
 	difference := time.Now().Sub(b.packets[pathID][packetNumber])
 
 	b.rttWriter.WriteString(

@@ -110,8 +110,8 @@
 2. When an interface is disabled or firewalled whole session goes down
 3. On Linux, two default gateways. Each of the paths go through the same gateway, need to add custom routing rule.
 ```
-konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip rule add from 192.168.1.0/24 table 777
-konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add 0.0.0.0/0 via 192.168.1.1 dev wlp41s0 table 777 
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip rule add from 192.168.2.0/24 table 777
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add 0.0.0.0/0 via 192.168.2.1 dev wlp41s0 table 777 
 ```
 4. Closing session is not verified? Sometimes PeerGoingAway, sometimes EOF
 5. Server closed session and finished, client has NetworkIdleTimeout and no file
