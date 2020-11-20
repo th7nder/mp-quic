@@ -19,23 +19,27 @@ def plot_rtts(filename, paths, ax4):
 			rows.append(row)
 
 	for p in paths:
-		packets = []
-		delays = []
+		pds = []
 		for row in rows:
 			path = row[0]
 			if path != p:
 				continue
 
 			pn = int(row[1])
-			delay = int(row[2]) / 1000
-			packets.append(pn)
-			delays.append(delay)
+			delay = int(row[2])
+			if delay != -1:
+				delay /= 1000
+			pds.append((pn, delay))
 
 		if p == "3":
 			l = "Fiber over WiFi 5Ghz 170/60Mbps"
 		else:
 			l = "LTE over Ethernet 60/30Mbps"
 
+		pds.sort(key=lambda k: k[0])
+		packets = list(map(lambda x: x[0], pds))
+		delays = list(map(lambda x: x[1], pds))
+		print(sum([x for x in delays if x == -1]))
 		ax4.plot(packets, delays, label=l)
 
 	ax4.legend()
