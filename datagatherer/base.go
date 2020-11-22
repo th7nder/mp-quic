@@ -87,13 +87,17 @@ func (b *Base) OnAckReceived(pathID protocol.PathID, frames []wire.Frame) {
 	for _, frame := range frames {
 		switch frame := frame.(type) {
 		case *wire.StreamFrame:
+			if _, ok := b.chunks[frame.StreamID][frame.Offset]; !ok {
+				continue
+			}
 			difference := now.Sub(b.chunks[frame.StreamID][frame.Offset].Sent)
 			// streamID || offset || delay (ns)
 			b.rttWriter.WriteString(
 				fmt.Sprintf(
-					"%d,%d,%d\n",
+					"%d,%d,%d,%d\n",
 					frame.StreamID,
 					frame.Offset,
+					b.chunks[frame.StreamID][frame.Offset].Sent.Nanosecond(),
 					difference.Nanoseconds(),
 				),
 			)
