@@ -97,7 +97,7 @@ func (b *Base) OnAckReceived(pathID protocol.PathID, frames []wire.Frame) {
 					"%d,%d,%d,%d\n",
 					frame.StreamID,
 					frame.Offset,
-					b.chunks[frame.StreamID][frame.Offset].Sent.Nanosecond(),
+					b.chunks[frame.StreamID][frame.Offset].Sent.UnixNano(),
 					difference.Nanoseconds(),
 				),
 			)
