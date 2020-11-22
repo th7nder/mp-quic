@@ -8,7 +8,7 @@ def clamp_time(time):
 		time[i] -= s
 
 def plot_delays(filename, paths, ax):
-	ax.set_title('time vs. delay to receive')
+	ax.set_title('time vs. delay to receive (from oldest)')
 	ax.set_xlabel('time [s]')
 	ax.set_ylabel('delay [ms]')
 
@@ -53,8 +53,8 @@ def plot_delays(filename, paths, ax):
 	ax.legend()
 
 def plot_rtts(filename, paths, ax4):
-	ax4.set_title('byte offset vs. delay to receive')
-	ax4.set_xlabel('byte offset')
+	ax4.set_title('time vs. delay to receive (sent time)')
+	ax4.set_xlabel('time [s]')
 	ax4.set_ylabel('delay [ms]')
 
 	rows = []
@@ -78,21 +78,24 @@ def plot_rtts(filename, paths, ax4):
 			s = row[0]
 			if stream != s:
 				continue
+			if len(row) != 4:
+				continue
 
 			pn = int(row[1])
-			delay = int(row[2])
+			sentTime = int(row[2]) / 1000 / 1000 / 1000
+			delay = int(row[3])
 			if delay != -1:
 				# nanoseconds
 				delay /= 1000 * 1000
-			pds.append((pn, delay))
+			pds.append((sentTime, delay, pn))
 
 		pds.sort(key=lambda k: k[0])
-		packets = list(map(lambda x: x[0], pds))
+		times = list(map(lambda x: x[0], pds))
 		delays = list(map(lambda x: x[1], pds))
 		print(f"RTT max: {max(delays)}")
-
-		print(sum([x for x in delays if x == -1]))
-		ax4.plot(packets, delays, label=f"Stream {stream}")
+		
+		clamp_time(times)
+		ax4.plot(times, delays, label=f"Stream {stream}")
 
 	ax4.legend()
 
@@ -172,9 +175,9 @@ def plot_mp(filename, savefile, title):
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
 
 
-plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
-plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
-plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 00:03, 23.11.2020')
+# plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
+# plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
 # plot_mp('../results/mq_u_4', 'mq_u_4.png', '4. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
 # plot_mp('../results/mq_u_5', 'mq_u_5.png', '5. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
 
