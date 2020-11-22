@@ -100,17 +100,16 @@ func (b *Base) OnAckReceived(pathID protocol.PathID, frames []wire.Frame) {
 			b.chunks[frame.StreamID][frame.Offset].Acked = true
 
 			// sort offsets first
-			keys := make([]int, len(b.chunks[frame.StreamID]))
+			keys := make([]protocol.ByteCount, len(b.chunks[frame.StreamID]))
 			i := 0
 			for k := range b.chunks[frame.StreamID] {
-				keys[i] = int(k)
+				keys[i] = k
 				i++
 			}
-			sort.Ints([]int(keys))
+			sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
 
 			var delayed bool
-			for k := range keys {
-				offset := protocol.ByteCount(k)
+			for _, offset := range keys {
 				chunk := b.chunks[frame.StreamID][offset]
 
 				if offset < frame.Offset {
