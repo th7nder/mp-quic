@@ -124,13 +124,20 @@ def plot_mp(filename, savefile, title):
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
 
 
-plot_mp('../results/mq_u_4', 'mq_u_4.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:36, 20.11.2020')
-plot_mp('../results/mq_u_5', 'mq_u_5.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:36, 20.11.2020')
-plot_mp('../results/mq_u_6', 'mq_u_6.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:37, 20.11.2020')
-plot_mp('../results/mq_u_7', 'mq_u_7.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:37, 20.11.2020')
-plot_mp('../results/mq_u_8', 'mq_u_8.png', 'MPQUIC | 300 MB upload, 1 stream UNTHROTTLED (.78); 05:38, 20.11.2020')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
+plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
+plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
+plot_mp('../results/mq_u_4', 'mq_u_4.png', '4. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
+plot_mp('../results/mq_u_5', 'mq_u_5.png', '5. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
 
-plot_mp('../results/q_u_1', 'q_u_1.png', 'QUIC | 100 MB upload, 1 stream FIBER UNTHROTTLED (.78); 05:03, 20.11.2020')
+plot_mp('../results/mq_t_1', 'mq_t_1.png', '1. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
+plot_mp('../results/mq_t_2', 'mq_t_2.png', '2. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
+plot_mp('../results/mq_t_3', 'mq_t_3.png', '3. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
+plot_mp('../results/mq_t_4', 'mq_t_4.png', '4. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
+plot_mp('../results/mq_t_5', 'mq_t_5.png', '5. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
+
+
+
 
 
 
