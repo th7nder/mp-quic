@@ -8,8 +8,8 @@ def clamp_time(time):
 		time[i] -= s
 
 def plot_delays(filename, paths, ax):
-	ax.set_title('time vs. delay to receive (from oldest)')
-	ax.set_xlabel('time [s]')
+	ax.set_title('sent time vs. delay to receive (from oldest unacked)')
+	ax.set_xlabel('sent time [s]')
 	ax.set_ylabel('delay [ms]')
 
 	rows = []
@@ -53,8 +53,8 @@ def plot_delays(filename, paths, ax):
 	ax.legend()
 
 def plot_rtts(filename, paths, ax4):
-	ax4.set_title('time vs. delay to receive (sent time)')
-	ax4.set_xlabel('time [s]')
+	ax4.set_title('sent time vs. delay to receive (from sent time)')
+	ax4.set_xlabel('sent time [s]')
 	ax4.set_ylabel('delay [ms]')
 
 	rows = []
@@ -175,7 +175,25 @@ def plot_mp(filename, savefile, title):
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
 
 
-plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 00:03, 23.11.2020')
+plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+
+
+plot_mp('../results/mq_t_1', 'mq_t_1.png', '4. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+plot_mp('../results/mq_t_2', 'mq_t_2.png', '5. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+plot_mp('../results/mq_t_3', 'mq_t_3.png', '6. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+
+
+plot_mp('../results/2_mq_u_1', '2_mq_u_1.png', '7. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+plot_mp('../results/2_mq_u_2', '2_mq_u_2.png', '8. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+plot_mp('../results/2_mq_u_3', '2_mq_u_3.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+
+
+plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 23.11.2020')
+plot_mp('../results/2_mq_t_2', '2_mq_t_2.png', '11. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
+plot_mp('../results/2_mq_t_3', '2_mq_t_3.png', '12. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
+
 # plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
 # plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
 # plot_mp('../results/mq_u_4', 'mq_u_4.png', '4. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
