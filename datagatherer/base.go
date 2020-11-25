@@ -71,8 +71,10 @@ func (b *Base) OnPacketSent(pathID protocol.PathID, frames []wire.Frame) {
 				b.chunks[frame.StreamID] = make(map[protocol.ByteCount]*Chunk)
 			}
 
-			b.chunks[frame.StreamID][frame.Offset] = &Chunk{
-				Sent: now,
+			if _, ok := b.chunks[frame.StreamID][frame.Offset]; !ok {
+				b.chunks[frame.StreamID][frame.Offset] = &Chunk{
+					Sent: now,
+				}
 			}
 		default:
 		}
