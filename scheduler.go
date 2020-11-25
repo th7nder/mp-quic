@@ -199,13 +199,13 @@ pathLoop:
 			continue pathLoop
 		}
 
-		fmt.Printf("Selected path: %d, of rtt: %d", selectedPathID, lowerRTT.Milliseconds())
+		fmt.Printf("Selected path: %d, of rtt: %d | ", selectedPathID, lowerRTT.Milliseconds())
 		// Update
 		lowerRTT = currentRTT
 		selectedPath = pth
 		selectedPathID = pathID
 	}
-	fmt.Printf(" END\n")
+	fmt.Printf(" FINAL: %d END\n", selectedPathID)
 
 	return selectedPath
 }
