@@ -166,45 +166,30 @@ def plot_mp(filename, savefile, title):
 	ax1.legend()
 	ax2.legend()
 	ax3.legend()
-	plt.savefig(savefile)
+	plt.show()
+	# plt.savefig(savefile)
 
 
-# plot_mp('../results/mq_u_1', 'mq_u_1.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78)')
-# plot_mp('../results/mq_u_2', 'mq_u_2.png', 'MPQUIC | 400 MB upload, 1 stream, UNTHROTTLED (.78); 14:55, 16.11.2020')
-
-# plot_mp('../results/mq_t_1', 'mq_t_1.png', 'MPQUIC | 10 MB upload, 1 stream, throttled (.31); 14:26, 17.11.2020')
-
-
-plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
-plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
-plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 
 
-plot_mp('../results/mq_t_1', 'mq_t_1.png', '4. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_t_1', 'mq_t_1.png', '4. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 plot_mp('../results/mq_t_2', 'mq_t_2.png', '5. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
-plot_mp('../results/mq_t_3', 'mq_t_3.png', '6. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_t_3', 'mq_t_3.png', '6. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 
 
-plot_mp('../results/2_mq_u_1', '2_mq_u_1.png', '7. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
-plot_mp('../results/2_mq_u_2', '2_mq_u_2.png', '8. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
-plot_mp('../results/2_mq_u_3', '2_mq_u_3.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+# plot_mp('../results/2_mq_u_1', '2_mq_u_1.png', '7. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+# plot_mp('../results/2_mq_u_2', '2_mq_u_2.png', '8. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+# plot_mp('../results/2_mq_u_3', '2_mq_u_3.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 00:20, 23.11.2020')
+# plot_mp('../results/2_mq_u_4', '2_mq_u_4.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 11:27, 25.11.2020')
 
 
-plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 23.11.2020')
-plot_mp('../results/2_mq_t_2', '2_mq_t_2.png', '11. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
-plot_mp('../results/2_mq_t_3', '2_mq_t_3.png', '12. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
-
-# plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
-# plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 23:48, 22.11.2020')
-# plot_mp('../results/mq_u_4', 'mq_u_4.png', '4. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
-# plot_mp('../results/mq_u_5', 'mq_u_5.png', '5. MPQUIC | 80MB upload, 1 stream UNTHROTTLED (.78); 14:00, 20.11.2020')
-
-# plot_mp('../results/mq_t_1', 'mq_t_1.png', '1. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
-# plot_mp('../results/mq_t_2', 'mq_t_2.png', '2. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
-# plot_mp('../results/mq_t_3', 'mq_t_3.png', '3. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
-# plot_mp('../results/mq_t_4', 'mq_t_4.png', '4. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
-# plot_mp('../results/mq_t_5', 'mq_t_5.png', '5. MPQUIC | 5MB upload, 1 stream throttled (.31); 14:07, 20.11.2020')
-
+# plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 23.11.2020')
+# plot_mp('../results/2_mq_t_2', '2_mq_t_2.png', '11. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
+# plot_mp('../results/2_mq_t_3', '2_mq_t_3.png', '12. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
+# plot_mp('../results/2_mq_t_4', '2_mq_t_4.png', '13. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 11:23, 25.11.2020')
 
 
 
