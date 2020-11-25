@@ -1,6 +1,7 @@
 package quic
 
 import (
+	"fmt"
 	"net"
 	"time"
 
@@ -194,7 +195,8 @@ func (f *streamFramer) maybePopNormalFrames(maxBytes protocol.ByteCount) (res []
 		var data []byte
 		if lenStreamData != 0 {
 			// Only getDataForWriting() if we didn't have data earlier, so that we
-			// don't send without FC approval (if a Write() raced).
+			// don't send without FC approval (if a Write() raced).\
+			fmt.Printf("Getting data from: %d\n", s.streamID)
 			data = s.getDataForWriting(maxLen)
 		}
 
