@@ -167,6 +167,7 @@ func (f *streamFramer) maybePopNormalFrames(maxBytes protocol.ByteCount) (res []
 	frame := &wire.StreamFrame{DataLenPresent: true}
 	var currentLen protocol.ByteCount
 
+	fmt.Printf("Popping frames!\n")
 	fn := func(s *stream) (bool, error) {
 		if s == nil || s.streamID == 1 /* crypto stream is handled separately */ {
 			return true, nil
