@@ -205,7 +205,7 @@ pathLoop:
 		selectedPath = pth
 		selectedPathID = pathID
 	}
-	fmt.Printf(" FINAL: %d END\n", selectedPathID)
+	fmt.Printf(" FINAL: %d -> %d END\n", selectedPathID, selectedPath.pathID)
 
 	return selectedPath
 }
