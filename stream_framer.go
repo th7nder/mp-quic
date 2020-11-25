@@ -1,7 +1,6 @@
 package quic
 
 import (
-	"fmt"
 	"net"
 	"time"
 
@@ -167,7 +166,6 @@ func (f *streamFramer) maybePopNormalFrames(maxBytes protocol.ByteCount) (res []
 	frame := &wire.StreamFrame{DataLenPresent: true}
 	var currentLen protocol.ByteCount
 
-	fmt.Printf("Popping frames!\n")
 	fn := func(s *stream) (bool, error) {
 		if s == nil || s.streamID == 1 /* crypto stream is handled separately */ {
 			return true, nil
@@ -197,7 +195,6 @@ func (f *streamFramer) maybePopNormalFrames(maxBytes protocol.ByteCount) (res []
 		if lenStreamData != 0 {
 			// Only getDataForWriting() if we didn't have data earlier, so that we
 			// don't send without FC approval (if a Write() raced).\
-			fmt.Printf("Getting data from: %d\n", s.streamID)
 			data = s.getDataForWriting(maxLen)
 		}
 
