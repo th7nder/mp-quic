@@ -534,7 +534,9 @@ func (h *sentPacketHandler) SendingAllowed() bool {
 	// Always allow sending of retransmissions. This should probably be limited
 	// to RTOs, but we currently don't have a nice way of distinguishing them.
 	haveRetransmissions := len(h.retransmissionQueue) > 0
-	fmt.Printf("SendingAllowed: mTL: %t, cwnL (%d/%d): %t, retrans: %t ", maxTrackedLimited, h.bytesInFlight, h.congestion.GetCongestionWindow(), congestionLimited, haveRetransmissions)
+	if congestionLimited {
+		fmt.Printf("cwnL (%d/%d)", h.bytesInFlight, h.congestion.GetCongestionWindow())
+	}
 	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
 }
 
