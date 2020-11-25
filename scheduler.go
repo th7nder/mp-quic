@@ -1,7 +1,6 @@
 package quic
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
@@ -155,12 +154,10 @@ func (sch *scheduler) selectPathLowLatency(s *session, hasRetransmission bool, h
 	var currentRTT time.Duration
 	selectedPathID := protocol.PathID(255)
 
-	fmt.Printf("Selecting path...")
 pathLoop:
 	for pathID, pth := range s.paths {
 		// Don't block path usage if we retransmit, even on another path
 		if !hasRetransmission && !pth.SendingAllowed() {
-			fmt.Printf(" Skipping ONE, %d ", pathID)
 			continue pathLoop
 		}
 
@@ -179,7 +176,6 @@ pathLoop:
 		// Prefer staying single-path if not blocked by current path
 		// Don't consider this sample if the smoothed RTT is 0
 		if lowerRTT != 0 && currentRTT == 0 {
-			fmt.Printf(" Skipping SINGLE PATH, %d", pathID)
 			continue pathLoop
 		}
 
@@ -196,18 +192,14 @@ pathLoop:
 			}
 		}
 
-		fmt.Printf("Current rtt: %d, LowerRtt: %d ", currentRTT.Milliseconds(), lowerRTT.Milliseconds())
 		if currentRTT != 0 && lowerRTT != 0 && selectedPath != nil && currentRTT >= lowerRTT {
-			fmt.Printf(" Skipping rtt greater, %d", pathID)
 			continue pathLoop
 		}
 		// Update
 		lowerRTT = currentRTT
 		selectedPath = pth
 		selectedPathID = pathID
-		fmt.Printf("Selected path: %d, of rtt: %d | ", selectedPathID, lowerRTT.Milliseconds())
 	}
-	fmt.Printf(" FINAL: %d END\n", selectedPathID)
 
 	return selectedPath
 }

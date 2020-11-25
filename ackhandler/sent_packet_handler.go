@@ -94,7 +94,6 @@ type sentPacketHandler struct {
 func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool, dataGatherer datagatherer.DataGatherer, pathID protocol.PathID) SentPacketHandler {
 	var congestionControl congestion.SendAlgorithm
 
-	fmt.Printf("COngestion: %v\n", cong)
 	if cong != nil {
 		congestionControl = cong
 	} else {
@@ -535,9 +534,6 @@ func (h *sentPacketHandler) SendingAllowed() bool {
 	// Always allow sending of retransmissions. This should probably be limited
 	// to RTOs, but we currently don't have a nice way of distinguishing them.
 	haveRetransmissions := len(h.retransmissionQueue) > 0
-	if congestionLimited {
-		fmt.Printf("cwnL (%d/%d)", h.bytesInFlight, h.congestion.GetCongestionWindow())
-	}
 	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
 }
 
