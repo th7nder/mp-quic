@@ -160,19 +160,17 @@ pathLoop:
 	for pathID, pth := range s.paths {
 		// Don't block path usage if we retransmit, even on another path
 		if !hasRetransmission && !pth.SendingAllowed() {
-			fmt.Printf(" Skipping ONE, %d", pathID)
+			fmt.Printf(" Skipping ONE, %d ", pathID)
 			continue pathLoop
 		}
 
 		// If this path is potentially failed, do not consider it for sending
 		if pth.potentiallyFailed.Get() {
-			fmt.Printf(" Skipping FAILED, %d", pathID)
 			continue pathLoop
 		}
 
 		// XXX Prevent using initial pathID if multiple paths
 		if pathID == protocol.InitialPathID {
-			fmt.Printf(" Skipping INITIAL, %d", pathID)
 			continue pathLoop
 		}
 
