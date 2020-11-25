@@ -194,12 +194,12 @@ pathLoop:
 			}
 		}
 
-		fmt.Printf("Current rtt: %d, LowerRtt: %d ", currentRTT, lowerRTT)
+		fmt.Printf("Current rtt: %d, LowerRtt: %d ", currentRTT.Milliseconds(), lowerRTT.Milliseconds())
 		if currentRTT != 0 && lowerRTT != 0 && selectedPath != nil && currentRTT >= lowerRTT {
 			continue pathLoop
 		}
 
-		fmt.Printf("Selected path: %d, of rtt: %d", selectedPathID, lowerRTT)
+		fmt.Printf("Selected path: %d, of rtt: %d", selectedPathID, lowerRTT.Milliseconds())
 		// Update
 		lowerRTT = currentRTT
 		selectedPath = pth
