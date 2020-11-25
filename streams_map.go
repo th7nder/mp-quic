@@ -244,7 +244,7 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 	numStreams := uint32(len(m.streams))
 	startIndex := m.roundRobinIndex
 
-	for _, i := range []protocol.StreamID{1, 3} {
+	for _, i := range []protocol.StreamID{1} {
 		cont, err := m.iterateFunc(i, fn)
 		if err != nil && err != errMapAccess {
 			return err
@@ -256,7 +256,7 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 
 	for i := uint32(0); i < numStreams; i++ {
 		streamID := m.openStreams[(i+startIndex)%numStreams]
-		if streamID == 1 || streamID == 3 {
+		if streamID == 1 {
 			continue
 		}
 
