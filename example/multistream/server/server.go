@@ -40,43 +40,54 @@ func Server(addr string, streams int, size int, game bool) error {
 	}
 }
 
+type StreamCharacteristic struct {
+	// bytes
+	DataMin int
+	DataMax int
+	// miliseconds
+	IntervalMin int
+	IntervalMax int
+	One         bool
+}
+
 func handleGameSession(session quic.Session, data []byte) {
 	utils.Infof("Accepting game streams")
 	var wg sync.WaitGroup
 
 	rand.Seed(time.Now().UnixNano())
 
+	scs := make(map[quic.StreamID]*StreamCharacteristic)
+	scs[quic.StreamID(3)] = &StreamCharacteristic{
+		One: true,
+	}
+	// Boss casts, pool on the floors (0.3-1s, 100-200B)
+	scs[quic.StreamID(5)] = &StreamCharacteristic{
+		DataMin:     100,
+		DataMax:     200,
+		IntervalMin: 300,
+		IntervalMax: 1000,
+	}
+	// Player chat (0.5-3s), random 20-250B
+	scs[quic.StreamID(7)] = &StreamCharacteristic{
+		DataMin:     20,
+		DataMax:     250,
+		IntervalMin: 500,
+		IntervalMax: 3000,
+	}
+	// Character movement (0.1s), random 50B
+	scs[quic.StreamID(9)] = &StreamCharacteristic{
+		DataMin:     50,
+		DataMax:     50,
+		IntervalMin: 100,
+		IntervalMax: 100,
+	}
+
 	// 4 streams!
 	// Background download
-	go stream(session, &wg, data)
+	for i := 0; i < 4; i++ {
+		go customStream(session, &wg, data, scs)
+	}
 	wg.Add(1)
-	// Boss casts, pool on the floors (0.3-1s, 100-200B)
-	go customStream(session, func(s quic.Stream) (error, bool) {
-		_, err := s.Write(data[:100+rand.Intn(100)])
-		if err != nil {
-			return err, false
-		}
-		time.Sleep(time.Duration(300+rand.Intn(700)) * time.Millisecond)
-		return nil, true
-	})
-	// Player chat (0.5-3s), random 20-250B
-	go customStream(session, func(s quic.Stream) (error, bool) {
-		_, err := s.Write(data[:20+rand.Intn(230)])
-		if err != nil {
-			return err, false
-		}
-		time.Sleep(time.Duration(500+rand.Intn(2500)) * time.Millisecond)
-		return nil, true
-	})
-	// Character movement (0.1s), random 50B
-	go customStream(session, func(s quic.Stream) (error, bool) {
-		_, err := s.Write(data[:50])
-		if err != nil {
-			return err, false
-		}
-		time.Sleep(100 * time.Millisecond)
-		return nil, true
-	})
 
 	wg.Wait()
 	err := session.Close(nil)
@@ -133,12 +144,14 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 	wg.Done()
 }
 
-func customStream(session quic.Session, write func(s quic.Stream) (error, bool)) {
+func customStream(session quic.Session, wg *sync.WaitGroup, data []byte, scs map[quic.StreamID]*StreamCharacteristic) {
 	utils.Infof("Waiting for stream")
 	s, err := session.AcceptStream()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to accept a stream"))
 	}
+
+	sc := scs[s.StreamID()]
 
 	helo := make([]byte, len("HELO"))
 	_, err = s.Read(helo)
@@ -149,15 +162,24 @@ func customStream(session quic.Session, write func(s quic.Stream) (error, bool))
 	start := time.Now()
 	utils.Infof("[SID: %d] Accepted stream, starting to send data", s.StreamID())
 	for {
-		err, cont := write(s)
+		var (
+			n   int
+			err error
+		)
+		if sc.DataMax != 0 {
+			n, err = s.Write(data[:sc.DataMin+rand.Intn(sc.DataMax-sc.DataMin)])
+		} else {
+			n, err = s.Write(data)
+		}
 		if err != nil {
-			utils.Infof("[SID: %d] Wrote: %d, failed to write data: %s", s.StreamID(), err)
+			utils.Infof("[SID: %d] Failed to write %d, data: %s", s.StreamID(), n, err)
 			break
 		}
 
-		if !cont {
+		if sc.One {
 			break
 		}
+		time.Sleep(time.Duration(sc.IntervalMin+rand.Intn(sc.IntervalMax-sc.IntervalMin)) * time.Millisecond)
 	}
 	elapsed := time.Since(start)
 	utils.Infof("[SID: %d] Elapsed: %s\n", s.StreamID(), elapsed)
