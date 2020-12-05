@@ -48,7 +48,7 @@ def plot_delays(filename, paths, ax):
 		print(f"Delay max: {max(delays)}")
 		
 		clamp_time(times)
-		ax.plot(times, delays, label=f"Stream {stream}")
+		ax.plot(times, delays, label=f"Stream {stream}", marker='o')
 
 	ax.legend()
 
