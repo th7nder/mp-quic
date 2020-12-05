@@ -77,7 +77,7 @@ func handleGameSession(session quic.Session, data []byte) {
 	// Character movement (0.1s), random 50B
 	scs[quic.StreamID(9)] = &StreamCharacteristic{
 		DataMin:     50,
-		DataMax:     50,
+		DataMax:     51,
 		IntervalMin: 100,
 		IntervalMax: 100,
 	}
