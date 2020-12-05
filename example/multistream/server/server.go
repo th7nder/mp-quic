@@ -79,7 +79,7 @@ func handleGameSession(session quic.Session, data []byte) {
 		DataMin:     50,
 		DataMax:     51,
 		IntervalMin: 100,
-		IntervalMax: 100,
+		IntervalMax: 101,
 	}
 
 	// 4 streams!
