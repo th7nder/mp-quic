@@ -60,19 +60,19 @@ func handleGameSession(session quic.Session, data []byte) {
 	scs[quic.StreamID(3)] = &StreamCharacteristic{
 		One: true,
 	}
-	// Boss casts, pool on the floors (0.3-1s, 1,5kB-5kB)
+	// Boss casts, pool on the floors (0.3-0.7s, 1,5kB-5kB)
 	scs[quic.StreamID(5)] = &StreamCharacteristic{
 		DataMin:     1500,
 		DataMax:     5000,
 		IntervalMin: 300,
-		IntervalMax: 1000,
+		IntervalMax: 700,
 	}
-	// Player chat (0.5-3s), random 20-250B
+	// Player chat (0.5-0.8s), random 20-250B
 	scs[quic.StreamID(7)] = &StreamCharacteristic{
 		DataMin:     20,
 		DataMax:     250,
 		IntervalMin: 500,
-		IntervalMax: 3000,
+		IntervalMax: 800,
 	}
 	// Character movement (0.1s), random 100B
 	scs[quic.StreamID(9)] = &StreamCharacteristic{
