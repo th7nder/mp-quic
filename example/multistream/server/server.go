@@ -189,4 +189,7 @@ func customStream(session quic.Session, wg *sync.WaitGroup, data []byte, scs map
 	}
 
 	utils.Infof("[SID: %d] Successfully wrote data", s.StreamID())
+	if sc.One {
+		wg.Done()
+	}
 }
