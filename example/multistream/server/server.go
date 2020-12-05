@@ -51,7 +51,7 @@ func handleGameSession(session quic.Session, data []byte) {
 	go stream(session, &wg, data)
 	wg.Add(1)
 	// Boss casts, pool on the floors (0.3-1s, 100-200B)
-	go customStream(session, &wg, func(s quic.Stream) (error, bool) {
+	go customStream(session, func(s quic.Stream) (error, bool) {
 		_, err := s.Write(data[:100+rand.Intn(100)])
 		if err != nil {
 			return err, false
@@ -60,7 +60,7 @@ func handleGameSession(session quic.Session, data []byte) {
 		return nil, true
 	})
 	// Player chat (0.5-3s), random 20-250B
-	go customStream(session, &wg, func(s quic.Stream) (error, bool) {
+	go customStream(session, func(s quic.Stream) (error, bool) {
 		_, err := s.Write(data[:20+rand.Intn(230)])
 		if err != nil {
 			return err, false
@@ -69,7 +69,7 @@ func handleGameSession(session quic.Session, data []byte) {
 		return nil, true
 	})
 	// Character movement (0.1s), random 50B
-	go customStream(session, &wg, func(s quic.Stream) (error, bool) {
+	go customStream(session, func(s quic.Stream) (error, bool) {
 		_, err := s.Write(data[:50])
 		if err != nil {
 			return err, false
@@ -133,7 +133,7 @@ func stream(session quic.Session, wg *sync.WaitGroup, data []byte) {
 	wg.Done()
 }
 
-func customStream(session quic.Session, wg *sync.WaitGroup, write func(s quic.Stream) (error, bool)) {
+func customStream(session quic.Session, write func(s quic.Stream) (error, bool)) {
 	utils.Infof("Waiting for stream")
 	s, err := session.AcceptStream()
 	if err != nil {
@@ -167,5 +167,4 @@ func customStream(session quic.Session, wg *sync.WaitGroup, write func(s quic.St
 	}
 
 	utils.Infof("[SID: %d] Successfully wrote data", s.StreamID())
-	wg.Done()
 }
