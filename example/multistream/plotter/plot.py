@@ -173,10 +173,13 @@ def plot_mp(filename, savefile, title):
 # plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_u_4', 'mq_u_4.png', '44. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 16:34, 25.11.2020')
+plot_mp('../results/mq_u_5', 'mq_u_5.png', '44. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 16:34, 25.11.2020')
+
 
 
 # plot_mp('../results/mq_t_1', 'mq_t_1.png', '4. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
-plot_mp('../results/mq_t_2', 'mq_t_2.png', '5. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+# plot_mp('../results/mq_t_2', 'mq_t_2.png', '5. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_t_3', 'mq_t_3.png', '6. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 
 

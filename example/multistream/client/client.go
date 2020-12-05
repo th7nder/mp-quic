@@ -43,7 +43,7 @@ func stream(session quic.Session, wg *sync.WaitGroup) {
 }
 
 // Client connects to addr, opens n streams and downloads all data it can receive from a stream
-func Client(addr string, streams int, multipath bool) error {
+func Client(addr string, streams int, multipath bool, game bool) error {
 	session, err := quic.DialAddr(addr, &tls.Config{InsecureSkipVerify: true}, &quic.Config{
 		CreatePaths: multipath,
 	})
@@ -51,6 +51,9 @@ func Client(addr string, streams int, multipath bool) error {
 		return err
 	}
 
+	if game {
+		streams = 4
+	}
 	var wg sync.WaitGroup
 	for i := 0; i < streams; i++ {
 		wg.Add(1)
