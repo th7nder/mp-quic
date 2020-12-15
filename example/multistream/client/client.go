@@ -52,7 +52,7 @@ func Client(addr string, streams int, multipath bool, game bool) error {
 	}
 
 	if game {
-		streams = 4
+		streams = 2
 	}
 	var wg sync.WaitGroup
 	for i := 0; i < streams; i++ {

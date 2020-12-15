@@ -210,6 +210,11 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 plot_mp('../results/mq_u_1', '3_mq_u_1.png', '3. MPQUIC | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
 plot_mp('../results/q_fu_1', '1_q_fu_1.png', '1. QUIC Światłowód | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
 plot_mp('../results/q_lu_1', '2_q_lu_1.png', '2. QUIC LTE  | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+
+plot_mp('../results/q_ft_1', '4_q_ft_1.png', '4. QUIC Światłowód | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
+plot_mp('../results/q_lt_1', '5_q_lt_1.png', '5. QUIC LTE | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
+
+
 # plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_4', 'mq_u_4.png', '44. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 16:34, 25.11.2020')
