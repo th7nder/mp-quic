@@ -9,8 +9,8 @@ def clamp_time(time):
 
 
 slg = {
-	"3": "100MB upload",
-	"5": "5. 0.3-0.7s, 1,5-5kB",
+	"3": "50MB upload",
+	"5": "50MB upload",
 	"7": "7. 0.5-0.8s, 20-250B",
 	"9": "9. 0.1s, 100B",
 }
@@ -207,12 +207,21 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 # plot_mp('../results/mq_t_game', 'mq_t_game.png', '1. MPQUIC | 5MB upload + different, 4 streams throttled (.31); 13:28, 5.12.2020', 5, 7)
 
 
-plot_mp('../results/mq_u_1', '3_mq_u_1.png', '3. MPQUIC | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
-plot_mp('../results/q_fu_1', '1_q_fu_1.png', '1. QUIC Światłowód | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
-plot_mp('../results/q_lu_1', '2_q_lu_1.png', '2. QUIC LTE  | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+# plot_mp('../results/mq_u_1', '3_mq_u_1.png', '3. MPQUIC | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+plot_mp('../results/mq_u_2', '31_mq_u_2.png', '3.1. MPQUIC | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
 
-plot_mp('../results/q_ft_1', '4_q_ft_1.png', '4. QUIC Światłowód | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
-plot_mp('../results/q_lt_1', '5_q_lt_1.png', '5. QUIC LTE | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
+# plot_mp('../results/q_fu_1', '1_q_fu_1.png', '1. QUIC Światłowód | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+# plot_mp('../results/q_lu_1', '2_q_lu_1.png', '2. QUIC LTE  | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+plot_mp('../results/q_lu_2', '21_q_lu_2.png', '2.1. QUIC LTE  | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, 4)
+
+# plot_mp('../results/q_ft_1', '4_q_ft_1.png', '4. QUIC Światłowód | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
+# plot_mp('../results/q_lt_1', '5_q_lt_1.png', '5. QUIC LTE | 1 strumień, wysyłanie pliku 5MB, tłumiony | wykres ucięty, 0-4s', 0, 4)
+
+plot_mp('../results/2s_q_lu_1', '6_2s_q_lu_1.png', '6. QUIC LTE | 2 strumienie, wysyłanie 2 plików 50MB, nietłumiony | wykres ucięty, 0-4s', 0, 4)
+plot_mp('../results/2s_q_fu_1', '7_2s_q_fu_1.png', '7. QUIC Fiber | 2 strumienie, wysyłanie 2 plików 50MB, nietłumiony | wykres ucięty, 0-2s', 0, 2)
+plot_mp('../results/2s_mq_u_1', '8_2s_mq_u_1.png', '8. MPQUIC | 2 strumienie, wysyłanie 2 plików 50MB, nietłumiony', 0, -1)
+
+
 
 
 # plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
