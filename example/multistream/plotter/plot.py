@@ -9,7 +9,7 @@ def clamp_time(time):
 
 
 slg = {
-	"3": "3. 5MB upload",
+	"3": "100MB upload",
 	"5": "5. 0.3-0.7s, 1,5-5kB",
 	"7": "7. 0.5-0.8s, 20-250B",
 	"9": "9. 0.1s, 100B",
@@ -34,9 +34,9 @@ def find_times(times, f, to):
 	return (start, end)
 
 def plot_delays(filename, paths, ax, fromTime, toTime):
-	ax.set_title('sent time vs. delay to receive (from oldest unacked)')
-	ax.set_xlabel('sent time [s]')
-	ax.set_ylabel('delay [ms]')
+	ax.set_title('Opóźnienie odbioru vs. czas wysłania')
+	ax.set_xlabel('Czas wysłania [s]')
+	ax.set_ylabel('Opóźnienie odbioru [ms]')
 
 	rows = []
 	with open(filename + '/delays.csv') as f:
@@ -75,14 +75,14 @@ def plot_delays(filename, paths, ax, fromTime, toTime):
 		
 		clamp_time(times)
 		r = find_times(times, fromTime, toTime)
-		ax.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream], marker='o', color=scolors[stream])
+		ax.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream], color=scolors[stream])
 
 	ax.legend()
 
 def plot_rtts(filename, paths, ax4, fromTime, toTime):
-	ax4.set_title('sent time vs. delay to receive (from sent time)')
-	ax4.set_xlabel('sent time [s]')
-	ax4.set_ylabel('delay [ms]')
+	ax4.set_title('RTT vs. czas wysłania')
+	ax4.set_xlabel('Czas wysłania [s]')
+	ax4.set_ylabel('RTT [ms]')
 
 	rows = []
 	with open(filename + '/rtt.csv') as f:
@@ -146,22 +146,23 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 	plot_delays(filename, paths, ax4, fromTime, toTime)
 	plot_rtts(filename, paths, ax5, fromTime, toTime)
 	# plot_inflights(ax4, filename, paths)
-	ax1.set_title('in-flight vs. time')
-	ax1.set_xlabel('time [s]')
-	ax1.set_ylabel('in-flight [kB]')
-	ax2.set_title('SRTT vs. time')
-	ax2.set_xlabel('time [s]')
+	ax1.set_title('Dane w locie vs. czas')
+	ax1.set_xlabel('Czas [s]')
+	ax1.set_ylabel('Dane w locie [kB]')
+	ax2.set_title('SRTT vs. czas')
+	ax2.set_xlabel('Czas [s]')
 	ax2.set_ylabel('SRTT [ms]')
 
-	ax3.set_title('Throughput vs. time')
-	ax3.set_xlabel('time [s]')
-	ax3.set_ylabel('Throughput [Mbps]')
+	ax3.set_title('Przepustowość vs. czas')
+	ax3.set_xlabel('Czas [s]')
+	ax3.set_ylabel('Przepustowść [Mbps]')
 
 	for p in paths:
 		t = []
 		inFlights = []
 		srtts = []
 		thr = []
+		cwnds = []
 		for row in rows:
 			path = row[1]
 			if path != p:
@@ -169,8 +170,10 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 			time = row[0]
 			inFlight = row[4]
 			srtt = row[5]
+			cwnd = row[9]
 			t.append(int(time) / 1000 / 1000 / 1000)
 			inFlights.append(int(inFlight) / 1000)
+			cwnds.append(int(cwnd) / 1000)
 			srtts.append(int(srtt) / 1000)
 			if int(srtt) == 0:
 				throughput = 0
@@ -182,13 +185,16 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 			continue
 
 		if p == "3":
-			l = "Fiber over WiFi 5Ghz 170/60Mbps"
+			l = "Światłowód"
+		elif p == "0" and rows[0][3][0] == "8":
+			l = "Światłowód"
 		else:
-			l = "LTE over Ethernet 60/30Mbps"
+			l = "LTE"
 		print(sum(thr) / len(thr))
 		clamp_time(t)
 		r = find_times(t, fromTime, toTime)
 		ax1.plot(t[r[0]:r[1]], inFlights[r[0]:r[1]], label=l)
+		ax1.plot(t[r[0]:r[1]], cwnds[r[0]:r[1]], label=f"{l} - okno przeciążenia")
 		ax2.plot(t[r[0]:r[1]], srtts[r[0]:r[1]], label=l)
 		ax3.plot(t[r[0]:r[1]], thr[r[0]:r[1]], label=l)
 
@@ -201,7 +207,9 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 # plot_mp('../results/mq_t_game', 'mq_t_game.png', '1. MPQUIC | 5MB upload + different, 4 streams throttled (.31); 13:28, 5.12.2020', 5, 7)
 
 
-# plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
+plot_mp('../results/mq_u_1', '3_mq_u_1.png', '3. MPQUIC | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+plot_mp('../results/q_fu_1', '1_q_fu_1.png', '1. QUIC Światłowód | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
+plot_mp('../results/q_lu_1', '2_q_lu_1.png', '2. QUIC LTE  | 1 strumień, wysyłanie pliku 100MB, nietłumiony', 0, -1)
 # plot_mp('../results/mq_u_2', 'mq_u_2.png', '2. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_3', 'mq_u_3.png', '3. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
 # plot_mp('../results/mq_u_4', 'mq_u_4.png', '44. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 16:34, 25.11.2020')
@@ -220,7 +228,7 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 # plot_mp('../results/2_mq_u_4', '2_mq_u_4.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 11:27, 25.11.2020')
 
 
-plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 15.12.2020', 0, -1)
+# plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 15.12.2020', 0, -1)
 # plot_mp('../results/2_mq_t_2', '2_mq_t_2.png', '11. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
 # plot_mp('../results/2_mq_t_3', '2_mq_t_3.png', '12. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
 # plot_mp('../results/2_mq_t_4', '2_mq_t_4.png', '13. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 11:23, 25.11.2020')
