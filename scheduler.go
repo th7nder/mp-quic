@@ -246,6 +246,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 			Losses:          sentStats.Losses,
 			Packets:         sentStats.Packets,
 			Retransmissions: sentStats.Retransmissions,
+			CongestionWindow: sentStats.CongestionWindow,
 		})
 	}
 	s.pathsLock.RUnlock()

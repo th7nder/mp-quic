@@ -119,10 +119,11 @@ func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlg
 
 func (h *sentPacketHandler) GetStatistics() *SentPacketStatistics {
 	return &SentPacketStatistics{
-		Packets:         h.packets,
-		Losses:          h.losses,
-		Retransmissions: h.retransmissions,
-		InFlight:        h.bytesInFlight,
+		Packets:          h.packets,
+		Losses:           h.losses,
+		Retransmissions:  h.retransmissions,
+		InFlight:         h.bytesInFlight,
+		CongestionWindow: h.congestion.GetCongestionWindow(),
 	}
 }
 

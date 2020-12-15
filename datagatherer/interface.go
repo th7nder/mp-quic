@@ -9,14 +9,15 @@ import (
 )
 
 type GatherSentStatsArgs struct {
-	PathID          protocol.PathID
-	SRTT            time.Duration
-	LocalAddr       net.Addr
-	RemoteAddr      net.Addr
-	Packets         uint64
-	Retransmissions uint64
-	Losses          uint64
-	InFlight        protocol.ByteCount
+	PathID           protocol.PathID
+	SRTT             time.Duration
+	LocalAddr        net.Addr
+	RemoteAddr       net.Addr
+	Packets          uint64
+	Retransmissions  uint64
+	Losses           uint64
+	InFlight         protocol.ByteCount
+	CongestionWindow protocol.ByteCount
 }
 
 type DataGatherer interface {

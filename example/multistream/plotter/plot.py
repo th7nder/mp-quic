@@ -15,13 +15,20 @@ slg = {
 	"9": "9. 0.1s, 100B",
 }
 
+scolors = {
+	"3": "g",
+	"5": "r",
+	"7": "b",
+	"9": "m",
+}
+
 def find_times(times, f, to):
 	start = -1
 	end = -1
 	for idx, t in enumerate(times):
 		if start == -1 and t > f:
 			start = idx 
-		if end == -1 and t > to:
+		if to != -1 and end == -1 and t > to:
 			end = idx
 
 	return (start, end)
@@ -68,7 +75,7 @@ def plot_delays(filename, paths, ax, fromTime, toTime):
 		
 		clamp_time(times)
 		r = find_times(times, fromTime, toTime)
-		ax.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream], marker='o')
+		ax.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream], marker='o', color=scolors[stream])
 
 	ax.legend()
 
@@ -116,7 +123,7 @@ def plot_rtts(filename, paths, ax4, fromTime, toTime):
 		
 		clamp_time(times)
 		r = find_times(times, fromTime, toTime)
-		ax4.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream])
+		ax4.plot(times[r[0]:r[1]], delays[r[0]:r[1]], label=slg[stream], color=scolors[stream])
 
 	ax4.legend()
 
@@ -188,10 +195,10 @@ def plot_mp(filename, savefile, title, fromTime, toTime):
 	ax1.legend()
 	ax2.legend()
 	ax3.legend()
-	plt.show()
-	# plt.savefig(savefile)
+	# plt.show()
+	plt.savefig(savefile)
 
-plot_mp('../results/mq_t_game', 'mq_t_game.png', '1. MPQUIC | 5MB upload + different, 4 streams throttled (.78); 13:28, 5.12.2020', 4.5, 6.5)
+# plot_mp('../results/mq_t_game', 'mq_t_game.png', '1. MPQUIC | 5MB upload + different, 4 streams throttled (.31); 13:28, 5.12.2020', 5, 7)
 
 
 # plot_mp('../results/mq_u_1', 'mq_u_1.png', '1. MPQUIC | 50MB upload, 1 stream UNTHROTTLED (.78); 00:41, 23.11.2020')
@@ -213,7 +220,7 @@ plot_mp('../results/mq_t_game', 'mq_t_game.png', '1. MPQUIC | 5MB upload + diffe
 # plot_mp('../results/2_mq_u_4', '2_mq_u_4.png', '9. MPQUIC | 2 streams, 50MB per stream UNTHROTTLED (.78); 11:27, 25.11.2020')
 
 
-# plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 23.11.2020')
+plot_mp('../results/2_mq_t_1', '2_mq_t_1.png', '10. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:32, 15.12.2020', 0, -1)
 # plot_mp('../results/2_mq_t_2', '2_mq_t_2.png', '11. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
 # plot_mp('../results/2_mq_t_3', '2_mq_t_3.png', '12. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 00:33, 23.11.2020')
 # plot_mp('../results/2_mq_t_4', '2_mq_t_4.png', '13. MPQUIC | 2 streams, 5MB per stream; throttled (.31); 11:23, 25.11.2020')

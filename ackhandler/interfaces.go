@@ -8,10 +8,11 @@ import (
 )
 
 type SentPacketStatistics struct {
-	Packets         uint64
-	Retransmissions uint64
-	Losses          uint64
-	InFlight        protocol.ByteCount
+	Packets          uint64
+	Retransmissions  uint64
+	Losses           uint64
+	InFlight         protocol.ByteCount
+	CongestionWindow protocol.ByteCount
 }
 
 // SentPacketHandler handles ACKs received for outgoing packets
