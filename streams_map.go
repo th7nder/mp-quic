@@ -237,6 +237,7 @@ func (m *streamsMap) Iterate(fn streamLambda) error {
 // RoundRobinIterate executes the streamLambda for every open stream, until the streamLambda returns false
 // It uses a round-robin-like scheduling to ensure that every stream is considered fairly
 // It prioritizes the crypto- and the header-stream (StreamIDs 1 and 3)
+// PRIORITIZE STREAM 5
 func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
@@ -244,7 +245,7 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 	numStreams := uint32(len(m.streams))
 	startIndex := m.roundRobinIndex
 
-	for _, i := range []protocol.StreamID{1} {
+	for _, i := range []protocol.StreamID{1, 5} {
 		cont, err := m.iterateFunc(i, fn)
 		if err != nil && err != errMapAccess {
 			return err
@@ -256,7 +257,7 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 
 	for i := uint32(0); i < numStreams; i++ {
 		streamID := m.openStreams[(i+startIndex)%numStreams]
-		if streamID == 1 {
+		if streamID == 1 || streamID == 5 {
 			continue
 		}
 
