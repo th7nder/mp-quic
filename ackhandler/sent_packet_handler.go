@@ -195,16 +195,16 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 
 	// duplicate or out-of-order ACK
 	// what in the actual fuck, like we're forcing to retransmit out-of-order packet; it may be right you know???
-	if withPacketNumber <= h.largestReceivedPacketWithAck {
-		return ErrDuplicateOrOutOfOrderAck
-	}
-	h.largestReceivedPacketWithAck = withPacketNumber
+	// if withPacketNumber <= h.largestReceivedPacketWithAck {
+	// 	return ErrDuplicateOrOutOfOrderAck
+	// }
+	// h.largestReceivedPacketWithAck = withPacketNumber
 
-	// ignore repeated ACK (ACKs that don't have a higher LargestAcked than the last ACK)
-	if ackFrame.LargestAcked <= h.largestInOrderAcked() {
-		return nil
-	}
-	h.LargestAcked = ackFrame.LargestAcked
+	// // ignore repeated ACK (ACKs that don't have a higher LargestAcked than the last ACK)
+	// if ackFrame.LargestAcked <= h.largestInOrderAcked() {
+	// 	return nil
+	// }
+	// h.LargestAcked = ackFrame.LargestAcked
 
 	if h.skippedPacketsAcked(ackFrame) {
 		return ErrAckForSkippedPacket
