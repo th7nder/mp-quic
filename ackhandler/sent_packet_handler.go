@@ -198,13 +198,13 @@ func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumbe
 	// if withPacketNumber <= h.largestReceivedPacketWithAck {
 	// 	return ErrDuplicateOrOutOfOrderAck
 	// }
-	// h.largestReceivedPacketWithAck = withPacketNumber
+	h.largestReceivedPacketWithAck = withPacketNumber
 
 	// // ignore repeated ACK (ACKs that don't have a higher LargestAcked than the last ACK)
 	// if ackFrame.LargestAcked <= h.largestInOrderAcked() {
 	// 	return nil
 	// }
-	// h.LargestAcked = ackFrame.LargestAcked
+	h.LargestAcked = ackFrame.LargestAcked
 
 	if h.skippedPacketsAcked(ackFrame) {
 		return ErrAckForSkippedPacket
