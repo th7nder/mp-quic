@@ -258,7 +258,6 @@ pathLoop:
 			currentIF = 1 // avoid div by 0
 		}
 
-
 		// Prefer staying single-path if not blocked by current path
 		// Don't consider this sample if the smoothed RTT is 0
 		//if lowerRTT != 0 && currentRTT == 0 {
@@ -278,13 +277,11 @@ pathLoop:
 			}
 		}
 
-	  invThroughput := int64(currentRTT) / int64(currentIF)
-
+		invThroughput := int64(currentRTT) / int64(currentIF)
 
 		if selectedPath != nil && invThroughput > higherInvThroughput {
 			continue pathLoop
 		}
-
 
 		// Update
 		higherInvThroughput = invThroughput
@@ -299,8 +296,8 @@ pathLoop:
 func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 	// XXX Currently round-robin
 	// TODO select the right scheduler dynamically
-	//return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
-	return sch.selectPathHigherThroughput(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	// return sch.selectPathHigherThroughput(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	// return sch.selectPathRoundRobin(s, hasRetransmission, hasStreamRetransmission, fromPth)
 }
 
@@ -330,14 +327,14 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	for pathID, pth := range s.paths {
 		sentStats := pth.sentPacketHandler.GetStatistics()
 		s.dataGatherer.OnPathGatherSentStats(&datagatherer.GatherSentStatsArgs{
-			PathID:          pathID,
-			LocalAddr:       pth.conn.LocalAddr(),
-			RemoteAddr:      pth.conn.RemoteAddr(),
-			SRTT:            pth.rttStats.SmoothedRTT(),
-			InFlight:        sentStats.InFlight,
-			Losses:          sentStats.Losses,
-			Packets:         sentStats.Packets,
-			Retransmissions: sentStats.Retransmissions,
+			PathID:           pathID,
+			LocalAddr:        pth.conn.LocalAddr(),
+			RemoteAddr:       pth.conn.RemoteAddr(),
+			SRTT:             pth.rttStats.SmoothedRTT(),
+			InFlight:         sentStats.InFlight,
+			Losses:           sentStats.Losses,
+			Packets:          sentStats.Packets,
+			Retransmissions:  sentStats.Retransmissions,
 			CongestionWindow: sentStats.CongestionWindow,
 		})
 	}
