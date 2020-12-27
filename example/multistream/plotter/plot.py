@@ -69,7 +69,8 @@ def plot_delays(filename, paths, ax, fromTime, toTime, slg, show_labels):
 		pds.sort(key=lambda k: k[0])
 		times = list(map(lambda x: x[0], pds))
 		delays = list(map(lambda x: x[1], pds))
-		print(f"Delay max: {max(delays)}")
+		print(f"Avg delay s - {stream}", sum(delays) / len(delays))
+		# print(f"Delay max s - {stream}: {max(delays)}")
 		
 		clamp_time(times)
 		r = find_times(times, fromTime, toTime)
@@ -279,10 +280,14 @@ slg = {
 
 # 2SR 50 + mouse
 
-plot_mp('../results/2sr_q_lu_1', 'u_12_2sr_q_l_1.png', '12. QUIC LTE | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s, nietłumiony', 0, -1, slg)
-# plot_mp('../results/2sr_q_fu_1', 'u_13_2sr_q_f_1.png', '13. QUIC Fiber | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg, show_labels=True)
-plot_mp('../results/2sr_q_fu_2', 'u_13_2sr_q_f_2.png', '13. QUIC Fiber | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg, show_labels=True)
-plot_mp('../results/2sr_mq_u_1', 'u_14_2sr_mq_1.png', '14. MPQUIC  | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg)
+# plot_mp('../results/2sr_q_lu_1', 'u_12_2sr_q_l_1.png', '12. QUIC LTE | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s, nietłumiony', 0, -1, slg)
+# # plot_mp('../results/2sr_q_fu_1', 'u_13_2sr_q_f_1.png', '13. QUIC Fiber | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg, show_labels=True)
+# plot_mp('../results/2sr_q_fu_2', 'u_13_2sr_q_f_2.png', '13. QUIC Fiber | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg, show_labels=True)
+# plot_mp('../results/2sr_mq_u_1', 'u_14_2sr_mq_1.png', '14. MPQUIC  | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg)
+
+# plot_mp2('../results/2sr_q_lu_1', 'uZ_12_2sr_q_l_1.png', '12. QUIC LTE | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s, nietłumiony', 4, 6, slg)
+# plot_mp2('../results/2sr_mq_u_1', 'uZ_14_2sr_mq_1.png', '14. MPQUIC  | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, 10, slg)
+
 
 # 2 SP 50 + mouse
 
@@ -290,8 +295,11 @@ plot_mp('../results/2sr_mq_u_1', 'u_14_2sr_mq_1.png', '14. MPQUIC  | 2 strumieni
 # plot_mp('../results/2sp_q_fu_1', 'u_10_2sp_q_f_1.png', '10. QUIC Fiber (priorytet strumień 2) | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg, show_labels=True)
 # plot_mp('../results/2sp_mq_u_1', 'u_11_2sp_mq_1.png', '11. MPQUIC (priorytet strumień 2) | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg)
 
+# plot_mp2('../results/2sp_mq_u_1', 'uZ_11_2sp_mq_1.png', '11. MPQUIC (priorytet strumień 2) | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, 10, slg)
 
 
 
+plot_mp('../results/fast/2sr_mq_u_1', 'fast_u_14_2sr_mq_1.png', '14. MPQUIC  | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg)
+plot_mp('../results/fast/2sp_mq_u_1', 'fast_u_11_2sp_mq_1.png', '11. MPQUIC (priorytet strumień 2) | 2 strumienie, wysyłanie 1 pliku 50MB oraz 10kB co 0.2s', 0, -1, slg)
 
 
