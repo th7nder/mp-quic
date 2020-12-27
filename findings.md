@@ -113,6 +113,15 @@
 konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip rule add from 192.168.2.0/24 table 777
 konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add 0.0.0.0/0 via 192.168.2.1 dev wlp41s0 table 777 
 ```
+```
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip rule add from 192.168.2.0/24 table 1
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip rule add from 192.168.8.0/24 table 2
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add 192.168.2.0/24 dev wlp41s0 scope link table 1
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add default via 192.168.2.1 dev wlp41s0 table 1
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add 192.168.8.0/24 dev enp39s0 scope link table 2
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add default via 192.168.8.1 dev enp39s0 table 2
+konrad@stormheim:~/go/src/github.com/th7nder/mp-quic$ sudo ip route add default scope global nexthop via 192.168.2.1 dev wlp41s0
+```
 4. Closing session is not verified? Sometimes PeerGoingAway, sometimes EOF
 5. Server closed session and finished, client has NetworkIdleTimeout and no file
 

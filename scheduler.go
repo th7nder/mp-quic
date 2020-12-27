@@ -296,8 +296,8 @@ pathLoop:
 func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 	// XXX Currently round-robin
 	// TODO select the right scheduler dynamically
-	// return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
-	return sch.selectPathHigherThroughput(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	// return sch.selectPathHigherThroughput(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	// return sch.selectPathRoundRobin(s, hasRetransmission, hasStreamRetransmission, fromPth)
 }
 
