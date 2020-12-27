@@ -204,11 +204,103 @@ pathLoop:
 	return selectedPath
 }
 
+func (sch *scheduler) selectPathHigherThroughput(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
+	// XXX Avoid using PathID 0 if there is more than 1 path
+	if len(s.paths) <= 1 {
+		if !hasRetransmission && !s.paths[protocol.InitialPathID].SendingAllowed() {
+			return nil
+		}
+		return s.paths[protocol.InitialPathID]
+	}
+
+	// FIXME Only works at the beginning... Cope with new paths during the connection
+	if hasRetransmission && hasStreamRetransmission && fromPth.rttStats.SmoothedRTT() == 0 {
+		// Is there any other path with a lower number of packet sent?
+		currentQuota := sch.quotas[fromPth.pathID]
+		for pathID, pth := range s.paths {
+			if pathID == protocol.InitialPathID || pathID == fromPth.pathID {
+				continue
+			}
+			// The congestion window was checked when duplicating the packet
+			if sch.quotas[pathID] < currentQuota {
+				return pth
+			}
+		}
+	}
+
+	var selectedPath *path
+	//var lowerRTT time.Duration
+	var currentRTT time.Duration
+	var higherInvThroughput int64 = 0
+	selectedPathID := protocol.PathID(255)
+
+pathLoop:
+	for pathID, pth := range s.paths {
+		// Don't block path usage if we retransmit, even on another path
+		if !hasRetransmission && !pth.SendingAllowed() {
+			continue pathLoop
+		}
+
+		// If this path is potentially failed, do not consider it for sending
+		if pth.potentiallyFailed.Get() {
+			continue pathLoop
+		}
+
+		// XXX Prevent using initial pathID if multiple paths
+		if pathID == protocol.InitialPathID {
+			continue pathLoop
+		}
+
+		currentRTT = pth.rttStats.SmoothedRTT()
+		sentStats := pth.sentPacketHandler.GetStatistics()
+		currentIF := sentStats.InFlight
+		if currentIF == 0 {
+			currentIF = 1 // avoid div by 0
+		}
+
+
+		// Prefer staying single-path if not blocked by current path
+		// Don't consider this sample if the smoothed RTT is 0
+		//if lowerRTT != 0 && currentRTT == 0 {
+		//	continue pathLoop
+		//}
+
+		// Case if we have multiple paths unprobed
+		if currentRTT == 0 {
+			currentQuota, ok := sch.quotas[pathID]
+			if !ok {
+				sch.quotas[pathID] = 0
+				currentQuota = 0
+			}
+			lowerQuota, _ := sch.quotas[selectedPathID]
+			if selectedPath != nil && currentQuota > lowerQuota {
+				continue pathLoop
+			}
+		}
+
+	  invThroughput := int64(currentRTT) / int64(currentIF)
+
+
+		if selectedPath != nil && invThroughput > higherInvThroughput {
+			continue pathLoop
+		}
+
+
+		// Update
+		higherInvThroughput = invThroughput
+		selectedPath = pth
+		selectedPathID = pathID
+	}
+
+	return selectedPath
+}
+
 // Lock of s.paths must be held
 func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 	// XXX Currently round-robin
 	// TODO select the right scheduler dynamically
-	return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	//return sch.selectPathLowLatency(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	return sch.selectPathHigherThroughput(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	// return sch.selectPathRoundRobin(s, hasRetransmission, hasStreamRetransmission, fromPth)
 }
 
