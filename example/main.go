@@ -2,21 +2,20 @@ package main
 
 import (
 	"crypto/md5"
+	"crypto/rand"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"mime/multipart"
 	"net/http"
+	_ "net/http/pprof"
 	"path"
 	"runtime"
 	"strings"
 	"sync"
-
-	_ "net/http/pprof"
 
 	"github.com/lucas-clemente/quic-go/h2quic"
 	"github.com/lucas-clemente/quic-go/internal/utils"
@@ -39,6 +38,9 @@ type Size interface {
 }
 
 func init() {
+	data := make([]byte, 100*1000*1000)
+	rand.Read(data)
+
 	http.HandleFunc("/demo/tile", func(w http.ResponseWriter, r *http.Request) {
 		// Small 40x40 png
 		w.Write([]byte{
@@ -53,8 +55,6 @@ func init() {
 	})
 
 	http.HandleFunc("/demo/bigFile", func(w http.ResponseWriter, r *http.Request) {
-		data := make([]byte, 100*1000*1000)
-		rand.Read(data)
 		w.Write(data)
 	})
 
@@ -143,7 +143,7 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir(*www)))
 
 	if len(bs) == 0 {
-		bs = binds{"0.0.0.0:6121"}
+		bs = binds{"0.0.0.0:5201"}
 	}
 
 	var wg sync.WaitGroup
