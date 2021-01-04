@@ -63,3 +63,5 @@ const ClientHelloMinimumSize = 1024
 // * one failure due to an incorrect or missing source-address token
 // * one failure due the server's certificate chain being unavailible and the server being unwilling to send it without a valid source-address token
 const MaxClientHellos = 3
+
+const DesiredReceiveBufferSize = (1 << 20) * 5 // 5 MB

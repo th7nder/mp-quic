@@ -84,6 +84,10 @@ func (pcm *pconnManager) setup(pconnArg net.PacketConn, listenAddr net.Addr) err
 func (pcm *pconnManager) listen(pconn net.PacketConn) {
 	var err error
 
+	if conn, ok := pconn.(interface{ SetReadBuffer(int) error }); ok {
+		utils.Infof("Changed received buffer size to %d", protocol.DesiredReceiveBufferSize)
+		conn.SetReadBuffer(protocol.DesiredReceiveBufferSize)
+	}
 listenLoop:
 	for {
 		var n int
