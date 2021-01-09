@@ -8,6 +8,7 @@ import (
 	"github.com/lucas-clemente/quic-go/ackhandler"
 	"github.com/lucas-clemente/quic-go/internal/handshake"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
@@ -24,8 +25,8 @@ type packetPacker struct {
 	version      protocol.VersionNumber
 	cryptoSetup  handshake.CryptoSetup
 
-	connectionParameters  handshake.ConnectionParametersManager
-	streamFramer          *streamFramer
+	connectionParameters handshake.ConnectionParametersManager
+	streamFramer         *streamFramer
 
 	controlFrames []wire.Frame
 	stopWaiting   map[protocol.PathID]*wire.StopWaitingFrame
@@ -40,14 +41,14 @@ func newPacketPacker(connectionID protocol.ConnectionID,
 	version protocol.VersionNumber,
 ) *packetPacker {
 	return &packetPacker{
-		cryptoSetup:           cryptoSetup,
-		connectionID:          connectionID,
-		connectionParameters:  connectionParameters,
-		perspective:           perspective,
-		version:               version,
-		streamFramer:          streamFramer,
-		stopWaiting:           make(map[protocol.PathID]*wire.StopWaitingFrame),
-		ackFrame:              make(map[protocol.PathID]*wire.AckFrame),
+		cryptoSetup:          cryptoSetup,
+		connectionID:         connectionID,
+		connectionParameters: connectionParameters,
+		perspective:          perspective,
+		version:              version,
+		streamFramer:         streamFramer,
+		stopWaiting:          make(map[protocol.PathID]*wire.StopWaitingFrame),
+		ackFrame:             make(map[protocol.PathID]*wire.AckFrame),
 	}
 }
 
@@ -305,6 +306,7 @@ func (p *packetPacker) getPublicHeader(encLevel protocol.EncryptionLevel, pth *p
 
 	// XXX (QDC): need a additional check because of tests
 	if pth.sess != nil && pth.sess.handshakeComplete && p.version >= protocol.VersionMP {
+		utils.Debugf("Writing multipath pth id: %d", pth.pathID)
 		publicHeader.MultipathFlag = true
 		publicHeader.PathID = pth.pathID
 		// XXX (QDC): in case of doubt, never truncate the connection ID. This might change...
@@ -355,4 +357,3 @@ func (p *packetPacker) canSendData(encLevel protocol.EncryptionLevel) bool {
 	}
 	return encLevel == protocol.EncryptionForwardSecure
 }
-
