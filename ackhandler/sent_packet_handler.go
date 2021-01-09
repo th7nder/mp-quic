@@ -429,6 +429,13 @@ func (h *sentPacketHandler) detectLostPackets() {
 	if len(lostPackets) > 0 {
 		for _, p := range lostPackets {
 			h.queuePacketForRetransmission(p)
+			if utils.Debug() {
+				for _, f := range p.Value.Frames {
+					if sf, ok := f.(*wire.StreamFrame); ok {
+						utils.Debugf("Lost packet: 0x%x on path: %d, Stream: %d, Offset: 0x%x, Data length: 0x%x", p.Value.PacketNumber, h.pathID, sf.StreamID, sf.Offset, sf.DataLen())
+					}
+				}
+			}
 			h.congestion.OnPacketLost(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
 		}
 	}
