@@ -305,7 +305,8 @@ func (p *packetPacker) getPublicHeader(encLevel protocol.EncryptionLevel, pth *p
 	}
 
 	// XXX (QDC): need a additional check because of tests
-	if pth.sess != nil && /* pth.sess.handshakeComplete && */ p.version >= protocol.VersionMP {
+	// KS: bug with handshake
+	if pth.sess != nil && pth.sess.handshakeComplete && p.version >= protocol.VersionMP {
 		utils.Debugf("Writing multipath pth id: %d", pth.pathID)
 		publicHeader.MultipathFlag = true
 		publicHeader.PathID = pth.pathID
