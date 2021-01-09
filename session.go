@@ -493,7 +493,7 @@ func (s *session) handlePacketImpl(p *receivedPacket) error {
 	var ok bool
 	var err error
 
-	utils.Infof("Received packet %d, with pathID: %d", p.publicHeader.PacketNumber, p.publicHeader.PathID)
+	utils.Debugf("Received packet %d, with pathID: %d", p.publicHeader.PacketNumber, p.publicHeader.PathID)
 	pth, ok = s.paths[p.publicHeader.PathID]
 	if !ok {
 		// It's a new path initiated from remote host
