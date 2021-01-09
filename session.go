@@ -493,6 +493,7 @@ func (s *session) handlePacketImpl(p *receivedPacket) error {
 	var ok bool
 	var err error
 
+	utils.Infof("Received packet %d, with pathID: %d", p.publicHeader.PacketNumber, p.publicHeader.PathID)
 	pth, ok = s.paths[p.publicHeader.PathID]
 	if !ok {
 		// It's a new path initiated from remote host
@@ -793,6 +794,7 @@ func (s *session) sendPackedPacket(packet *packedPacket, pth *path) error {
 	}
 	pth.sentPacket <- struct{}{}
 
+	utils.Debugf("SENDING Packet, number: 0x%x, path: %d, remote: %s", packet.number, pth.pathID, pth.conn.RemoteAddr().String())
 	s.logPacket(packet, pth.pathID)
 	return pth.conn.Write(packet.raw)
 }
