@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"time"
 
 	"github.com/lucas-clemente/quic-go/example/multistream/client"
 	"github.com/lucas-clemente/quic-go/example/multistream/server"
@@ -27,6 +28,7 @@ func main() {
 		return
 	}
 
+	utils.SetLogTimeFormat(time.StampMicro)
 	if *verbose {
 		utils.SetLogLevel(utils.LogLevelDebug)
 	} else {
