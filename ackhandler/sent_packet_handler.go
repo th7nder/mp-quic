@@ -190,7 +190,7 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 
 func (h *sentPacketHandler) ReceivedAck(ackFrame *wire.AckFrame, withPacketNumber protocol.PacketNumber, rcvTime time.Time) error {
 	if ackFrame.LargestAcked > h.lastSentPacketNumber {
-		utils.Infof("Unsent packet | PathID: %d | Largest: %d | lastSentPacketNumber: %d", ackFrame.PathID, ackFrame.LargestAcked)
+		utils.Infof("Unsent packet | PathID: %d | Largest: %d | lastSentPacketNumber: %d", ackFrame.PathID, ackFrame.LargestAcked, h.lastSentPacketNumber)
 		return errAckForUnsentPacket
 	}
 
