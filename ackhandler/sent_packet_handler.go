@@ -574,11 +574,14 @@ func (h *sentPacketHandler) retransmitOldestTwoPackets() {
 
 func (h *sentPacketHandler) queueRTO(el *PacketElement) {
 	packet := &el.Value
+
 	utils.Debugf(
-		"\tQueueing packet 0x%x for retransmission (RTO), %d outstanding",
+		"\tQueueing packet 0x%x | path %d | for retransmission (RTO), %d outstanding",
 		packet.PacketNumber,
+		h.pathID,
 		h.packetHistory.Len(),
 	)
+
 	h.queuePacketForRetransmission(el)
 	h.losses++
 	h.congestion.OnPacketLost(packet.PacketNumber, packet.Length, h.bytesInFlight)
