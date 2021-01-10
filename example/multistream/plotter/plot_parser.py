@@ -95,15 +95,26 @@ def parse_results(filename):
 				throughput = (int(inFlight) * 8) / (int(srtt) / 1000 / 1000)
 			thr.append(throughput / 1000 / 1000)
 
+			if row[3][0] == "8":
+				l = FIBER
+			else:
+				l = LTE
+
 		if sum(inFlights) < 1000:
 			continue
 
-		if p == "3":
-			l = FIBER
-		elif p == "0" and rows[0][3][0] == "8":
-			l = FIBER
-		else:
-			l = LTE
+		# print(paths)
+		# print(rows[0][3])
+		# if rows[0][3][0] == "8":
+		# 	l = FIBER
+		# else:
+		# 	l = LTE
+		# if p == "3":
+		# 	l = FIBER
+		# elif p == "0" and rows[0][3][0] == "8":
+		# 	l = FIBER
+		# else:
+		# 	l = LTE
 
 		path_data[l] = Path(np.array(t), np.array(inFlights), np.array(srtts), np.array(thr))
 
