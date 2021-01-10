@@ -94,17 +94,17 @@ type sentPacketHandler struct {
 func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool, dataGatherer datagatherer.DataGatherer, pathID protocol.PathID) SentPacketHandler {
 	var congestionControl congestion.SendAlgorithm
 
-	// if cong != nil {
-	// congestionControl = cong
-	// } else {
-	congestionControl = congestion.NewCubicSender(
-		congestion.DefaultClock{},
-		rttStats,
-		false, /* don't use reno since chromium doesn't (why?) */
-		protocol.InitialCongestionWindow,
-		protocol.DefaultMaxCongestionWindow,
-	)
-	// }
+	if cong != nil {
+		congestionControl = cong
+	} else {
+		congestionControl = congestion.NewCubicSender(
+			congestion.DefaultClock{},
+			rttStats,
+			false, /* don't use reno since chromium doesn't (why?) */
+			protocol.InitialCongestionWindow,
+			protocol.DefaultMaxCongestionWindow,
+		)
+	}
 
 	return &sentPacketHandler{
 		packetHistory:      NewPacketList(),
