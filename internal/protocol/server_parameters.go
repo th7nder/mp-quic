@@ -99,7 +99,7 @@ const MaxPacketsReceivedBeforeAckSend = 20
 const MaxNonRetransmittablePackets = 19
 
 // RetransmittablePacketsBeforeAck is the number of retransmittable that an ACK is sent for
-const RetransmittablePacketsBeforeAck = 2
+const RetransmittablePacketsBeforeAck = 4
 
 // MaxStreamFrameSorterGaps is the maximum number of gaps between received StreamFrames
 // prevents DoS attacks against the streamFrameSorter
