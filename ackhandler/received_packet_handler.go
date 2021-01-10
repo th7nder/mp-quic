@@ -97,14 +97,14 @@ func (h *receivedPacketHandler) maybeQueueAck(packetNumber protocol.PacketNumber
 
 	// if the packet number is smaller than the largest acked packet, it must have been reported missing with the last ACK
 	// note that it cannot be a duplicate because they're already filtered out by ReceivedPacket()
-	// if h.lastAck != nil && packetNumber < h.lastAck.LargestAcked {
-	// 	h.ackQueued = true
-	// }
+	if h.lastAck != nil && packetNumber < h.lastAck.LargestAcked {
+		h.ackQueued = true
+	}
 
-	// // check if a new missing range above the previously was created
-	// if h.lastAck != nil && h.packetHistory.GetHighestAckRange().First > h.lastAck.LargestAcked {
-	// 	h.ackQueued = true
-	// }
+	// check if a new missing range above the previously was created
+	if h.lastAck != nil && h.packetHistory.GetHighestAckRange().First > h.lastAck.LargestAcked {
+		h.ackQueued = true
+	}
 
 	if !h.ackQueued && shouldInstigateAck {
 		if h.retransmittablePacketsReceivedSinceLastAck >= protocol.RetransmittablePacketsBeforeAck {
