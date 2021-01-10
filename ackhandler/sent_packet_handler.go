@@ -417,6 +417,7 @@ func (h *sentPacketHandler) detectLostPackets() {
 		// but when it was reordered, it'll be still marked as lost?????? -> BECAUSE we don't accept earlier acks
 		timeSinceSent := now.Sub(packet.SendTime)
 		if timeSinceSent > delayUntilLost {
+			utils.Debugf("LOST PACKET TIME: timeSinceSent: %s, sentTime: %d, now: %d", timeSinceSent.String(), packet.SendTime.UnixNano(), now.UnixNano())
 			// Update statistics
 			h.losses++
 			lostPackets = append(lostPackets, el)
